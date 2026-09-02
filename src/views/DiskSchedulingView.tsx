@@ -1,18 +1,39 @@
 import React, { useState } from 'react';
-import { HardDrive, Lock, Calculator } from 'lucide-react';
+import { RotateCcw, Calculator, Sliders } from 'lucide-react';
 import { simulateDiskScheduling } from '../utils/diskScheduler';
 import { DiskTrajectoryCanvas } from '../components/DiskTrajectoryCanvas';
 import { OFFICIAL_SIMULATION_DEFAULTS } from '../utils/constants';
 import { CalculationVerificationModal, type VerificationData } from '../components/CalculationVerificationModal';
 
 export const DiskSchedulingView: React.FC = () => {
-  const [initialHead] = useState<number>(OFFICIAL_SIMULATION_DEFAULTS.initialHead);
-  const [requestQueue] = useState<number[]>(OFFICIAL_SIMULATION_DEFAULTS.diskQueue);
+  const [cylinderMax, setCylinderMax] = useState<number>(OFFICIAL_SIMULATION_DEFAULTS.cylinderMax);
+  const [initialHead, setInitialHead] = useState<number>(OFFICIAL_SIMULATION_DEFAULTS.initialHead);
+  const [requestQueue, setRequestQueue] = useState<number[]>(OFFICIAL_SIMULATION_DEFAULTS.diskQueue);
+
+  // Form states for adding cylinder request
+  const [newCylinderInput, setNewCylinderInput] = useState<number>(50);
 
   const [genericVerificationModal, setGenericVerificationModal] = useState<VerificationData | null>(null);
 
-  const fcfsResult = simulateDiskScheduling(requestQueue, initialHead, 'FCFS', OFFICIAL_SIMULATION_DEFAULTS.cylinderMax);
+  const fcfsResult = simulateDiskScheduling(requestQueue, initialHead, 'FCFS', cylinderMax);
   const activeResult = fcfsResult;
+
+  const handleAddCylinderRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = Math.max(0, Math.min(cylinderMax, Number(newCylinderInput)));
+    setRequestQueue(prev => [...prev, val]);
+  };
+
+  const handleRemoveRequest = (idx: number) => {
+    if (requestQueue.length <= 1) return;
+    setRequestQueue(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleResetDiskParams = () => {
+    setCylinderMax(OFFICIAL_SIMULATION_DEFAULTS.cylinderMax);
+    setInitialHead(OFFICIAL_SIMULATION_DEFAULTS.initialHead);
+    setRequestQueue(OFFICIAL_SIMULATION_DEFAULTS.diskQueue);
+  };
 
   const showTotalSeekCalculation = () => {
     setGenericVerificationModal({
@@ -21,13 +42,13 @@ export const DiskSchedulingView: React.FC = () => {
       parameterInputs: [
         { label: 'Algorithm', value: activeResult.algorithm },
         { label: 'Initial Head Position', value: `Cylinder #${initialHead}` },
-        { label: 'Cylinder Range', value: '0 to 130' },
+        { label: 'Cylinder Range', value: `0 to ${cylinderMax}` },
         { label: 'Request Queue', value: `[${requestQueue.join(', ')}]` }
       ],
       formulas: [
         {
           title: 'Individual Seek Distances (|Target - Current|)',
-          equation: 'Step 1: |25-65|=40 | Step 2: |105-25|=80 | Step 3: |40-105|=65 | Step 4: |115-40|=75 | Step 5: |55-115|=60 | Step 6: |90-55|=35 | Step 7: |10-90|=80 | Step 8: |120-10|=110',
+          equation: fcfsResult.trajectory.map(s => `|${s.toCylinder}-${s.fromCylinder}|=${s.seekDistance}`).join(' + '),
           result: `Total Seek = ${fcfsResult.totalSeekDistance} tracks`
         }
       ],
@@ -63,47 +84,106 @@ export const DiskSchedulingView: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <h1 className="text-2xl font-extrabold text-white tracking-tight">Disk Scheduling &amp; Head Trajectory</h1>
-            <span className="badge-academic">Master Evaluation Suite</span>
+            <span className="badge-academic">Interactive Customization</span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Pre-configured strictly with official parameters. FCFS is the official algorithm baseline.
+            Add custom cylinder requests, change initial head position, and adjust cylinder range dynamically.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 text-xs font-mono text-amber-400 bg-amber-950/60 border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold">
-          <Lock className="h-4 w-4" />
-          <span>Cylinders: 0–130 | Initial Head: 65 | FCFS Baseline</span>
-        </div>
+        <button
+          onClick={handleResetDiskParams}
+          className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold font-mono border border-slate-700 transition flex items-center space-x-1.5 shadow-xs"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          <span>Reset Defaults</span>
+        </button>
       </div>
 
-      {/* Input Parameters */}
-      <div className="glass-card p-6 space-y-4">
-        <div className="flex items-center justify-between">
+      {/* Input Disk Parameters & Queue Controls */}
+      <div className="glass-card p-6 space-y-4 font-mono text-xs">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <h3 className="text-sm font-extrabold text-white flex items-center space-x-2">
-            <HardDrive className="h-4 w-4 text-amber-400" />
-            <span>Official Input Disk Parameters</span>
+            <Sliders className="h-4 w-4 text-amber-400" />
+            <span>Interactive Input Disk Parameters &amp; Queue Management</span>
           </h3>
-          <span className="text-xs font-mono text-amber-400 font-bold bg-amber-950/60 border border-amber-500/30 px-3 py-1 rounded-xl">
-            FCFS Algorithm (Official)
+          <span className="text-xs text-amber-400 font-bold bg-amber-950/60 border border-amber-500/30 px-3 py-1 rounded-xl">
+            Live Trajectory Computation
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
-          <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
-            <span className="text-slate-500">1. Disk Cylinder Range:</span>
-            <div className="text-white font-extrabold text-sm">0 to 130</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Cylinder Range Control */}
+          <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+            <label className="text-slate-400 font-bold block">1. Max Cylinder Range (0 to Max):</label>
+            <input
+              type="number"
+              min="50"
+              max="1000"
+              value={cylinderMax}
+              onChange={(e) => setCylinderMax(Math.max(10, Number(e.target.value)))}
+              className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-amber-500"
+            />
+            <span className="text-[10px] text-slate-500 block">Tracks Range: 0 to {cylinderMax}</span>
           </div>
 
-          <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
-            <span className="text-slate-500">2. Initial Head Position:</span>
-            <div className="text-cyan-400 font-extrabold text-sm">Cylinder #{initialHead}</div>
+          {/* Initial Head Position Control */}
+          <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+            <label className="text-slate-400 font-bold block">2. Initial Head Position:</label>
+            <input
+              type="number"
+              min="0"
+              max={cylinderMax}
+              value={initialHead}
+              onChange={(e) => setInitialHead(Math.max(0, Math.min(cylinderMax, Number(e.target.value))))}
+              className="w-full bg-slate-900 border border-slate-700 text-cyan-400 font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500"
+            />
+            <span className="text-[10px] text-slate-500 block">Starting Cylinder #{initialHead}</span>
           </div>
 
-          <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
-            <span className="text-slate-500">3. Official Request Queue:</span>
-            <div className="text-amber-400 font-bold text-xs truncate">
-              [{requestQueue.join(', ')}]
-            </div>
+          {/* Add Request Control */}
+          <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+            <label className="text-slate-400 font-bold block">3. Add Request to Queue:</label>
+            <form onSubmit={handleAddCylinderRequest} className="flex space-x-2">
+              <input
+                type="number"
+                min="0"
+                max={cylinderMax}
+                value={newCylinderInput}
+                onChange={(e) => setNewCylinderInput(Number(e.target.value))}
+                className="w-full bg-slate-900 border border-slate-700 text-amber-400 font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold rounded-xl shadow-md transition"
+              >
+                Add
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Current Request Queue List Chips */}
+        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-slate-400 font-bold text-[11px]">Active Request Queue ({requestQueue.length} Requests):</span>
+            <span className="text-[10px] text-slate-500">Click x to remove request</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            {requestQueue.map((req, idx) => (
+              <div key={idx} className="flex items-center space-x-1.5 px-3 py-1 bg-slate-900 border border-slate-700 rounded-xl text-amber-400 font-bold text-xs">
+                <span>#{req}</span>
+                {requestQueue.length > 1 && (
+                  <button
+                    onClick={() => handleRemoveRequest(idx)}
+                    className="text-slate-500 hover:text-rose-400 p-0.5 transition"
+                  >
+                    &times;
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -111,14 +191,14 @@ export const DiskSchedulingView: React.FC = () => {
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
         <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-amber-500">
-          <span className="text-slate-400">Official Algorithm</span>
+          <span className="text-slate-400">Active Algorithm</span>
           <div className="text-xl font-black text-white">FCFS Disk Scheduling</div>
           <span className="text-[10px] text-slate-500">First-Come First-Served</span>
         </div>
 
         <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-cyan-500">
           <span className="text-slate-400">Initial Head Position</span>
-          <div className="text-xl font-black text-cyan-400">Cylinder 65</div>
+          <div className="text-xl font-black text-cyan-400">Cylinder {initialHead}</div>
           <span className="text-[10px] text-slate-500">Starting Point</span>
         </div>
 
@@ -150,7 +230,7 @@ export const DiskSchedulingView: React.FC = () => {
       {/* Trajectory Derivation Cards */}
       <div className="glass-card p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="text-sm font-extrabold text-white flex items-center space-x-2">
+          <h3 className="text-sm font-extrabold text-white flex items-center space-x-2 font-sans">
             <Calculator className="h-4 w-4 text-amber-400" />
             <span>Step-by-Step Seek Distance Derivation ({activeResult.algorithm})</span>
           </h3>
@@ -184,12 +264,12 @@ export const DiskSchedulingView: React.FC = () => {
         <h3 className="text-sm font-extrabold text-white flex items-center space-x-2 px-1">
           <span>8. Head Movement Trajectory Graph ({activeResult.algorithm})</span>
         </h3>
-        <DiskTrajectoryCanvas result={activeResult} cylinderMax={OFFICIAL_SIMULATION_DEFAULTS.cylinderMax} />
+        <DiskTrajectoryCanvas result={activeResult} cylinderMax={cylinderMax} />
       </div>
 
       {/* Trajectory Table */}
       <div className="glass-card p-6 space-y-4">
-        <h3 className="text-sm font-extrabold text-white flex items-center justify-between">
+        <h3 className="text-sm font-extrabold text-white flex items-center justify-between font-sans">
           <span>5. Seek Distance Detailed Table ({activeResult.algorithm})</span>
           <span className="text-xs font-mono text-amber-400 font-bold">
             Total Movement: <strong className="text-white text-sm">{activeResult.totalSeekDistance}</strong> tracks
