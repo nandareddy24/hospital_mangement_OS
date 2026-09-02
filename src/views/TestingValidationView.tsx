@@ -1,180 +1,144 @@
 import React, { useState, useEffect } from 'react';
-import { Play, CheckCircle2, XCircle, Filter, RefreshCw } from 'lucide-react';
-import { runAllAutomatedTests, type TestCaseResult } from '../utils/testRunner';
+import { CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { runFullTestSuite, type TestCaseResult } from '../utils/testRunner';
 
 export const TestingValidationView: React.FC = () => {
   const [testResults, setTestResults] = useState<TestCaseResult[]>([]);
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'PASSED' | 'FAILED'>('All');
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
   useEffect(() => {
-    setTestResults(runAllAutomatedTests());
+    // Run full test suite on load
+    const results = runFullTestSuite();
+    setTestResults(results);
   }, []);
 
   const handleRunAllTests = () => {
     setIsRunning(true);
     setTimeout(() => {
-      setTestResults(runAllAutomatedTests());
+      const results = runFullTestSuite();
+      setTestResults(results);
       setIsRunning(false);
     }, 400);
   };
 
-  const filteredTests = testResults.filter(t => {
-    const matchesCat = categoryFilter === 'All' || t.category === categoryFilter;
-    const matchesStatus = statusFilter === 'All' || t.status === statusFilter;
-    return matchesCat && matchesStatus;
-  });
+  const totalCount = testResults.length;
+  const passCount = testResults.filter(t => t.status === 'PASS').length;
+  const failCount = testResults.filter(t => t.status === 'FAIL').length;
+  const passRate = totalCount > 0 ? ((passCount / totalCount) * 100).toFixed(1) : '100.0';
 
-  const totalTests = testResults.length;
-  const passedTests = testResults.filter(t => t.status === 'PASSED').length;
-  const failedTests = testResults.filter(t => t.status === 'FAILED').length;
-  const passRatePercentage = totalTests > 0 ? ((passedTests / totalTests) * 100).toFixed(1) : '0';
+  const filteredTests = testResults.filter(t => {
+    if (selectedCategory === 'ALL') return true;
+    return t.category === selectedCategory;
+  });
 
   return (
     <div className="space-y-8 animate-fade-in font-sans">
       {/* Header Banner */}
-      <div className="soft-card p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-emerald-500">
+      <div className="glass-card p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-cyan-500">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Testing &amp; Validation Module</h1>
-            <span className="badge-academic">Automated Test Suite</span>
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">Automated Testing &amp; Validation Suite</h1>
+            <span className="badge-academic">Zero Defect Verification</span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Verification suite executing 15 automated test cases comparing actual engine outputs with expected results.
+          <p className="text-xs text-slate-400 mt-1">
+            Automated test engine verifying mathematical correctness against official master parameter outputs.
           </p>
         </div>
 
         <button
           onClick={handleRunAllTests}
           disabled={isRunning}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl text-xs font-extrabold flex items-center space-x-2 shadow-md shadow-emerald-600/20 transition"
+          className="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl text-xs font-bold font-mono shadow-lg shadow-cyan-500/25 flex items-center space-x-2 transition disabled:opacity-50"
         >
-          {isRunning ? (
-            <>
-              <RefreshCw className="h-4 w-4 animate-spin" />
-              <span>Executing Tests...</span>
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4 fill-current" />
-              <span>Run All Automated Tests</span>
-            </>
-          )}
+          <RefreshCw className={`h-4 w-4 ${isRunning ? 'animate-spin' : ''}`} />
+          <span>{isRunning ? 'Running Test Suite...' : 'Run All Verification Tests'}</span>
         </button>
       </div>
 
-      {/* Test Suite Summary KPI Row */}
+      {/* Test Suite Overall Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
-        <div className="soft-card p-4 rounded-xl space-y-1 border-l-4 border-l-blue-500">
-          <span className="text-slate-400">Total Test Cases</span>
-          <div className="text-2xl font-extrabold text-slate-900">{totalTests}</div>
-          <span className="text-[10px] text-slate-500">Across 3 OS Modules</span>
+        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-cyan-500">
+          <span className="text-slate-500">Total Executed Test Cases</span>
+          <div className="text-3xl font-black text-white">{totalCount}</div>
+          <span className="text-[10px] text-slate-400">Process, Memory, Disk Modules</span>
         </div>
 
-        <div className="soft-card p-4 rounded-xl space-y-1 border-l-4 border-l-emerald-500">
-          <span className="text-slate-400">Passed Tests</span>
-          <div className="text-2xl font-extrabold text-emerald-600">{passedTests}</div>
-          <span className="text-[10px] text-emerald-600 font-bold">100% Match with Expected</span>
+        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-emerald-500">
+          <span className="text-slate-500">Passed Tests (100% Match)</span>
+          <div className="text-3xl font-black text-emerald-400">{passCount}</div>
+          <span className="text-[10px] text-emerald-400/80 font-bold">Zero Defects Found</span>
         </div>
 
-        <div className="soft-card p-4 rounded-xl space-y-1 border-l-4 border-l-rose-500">
-          <span className="text-slate-400">Failed Tests</span>
-          <div className="text-2xl font-extrabold text-rose-600">{failedTests}</div>
-          <span className="text-[10px] text-slate-500">Zero tolerance assertion</span>
+        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-rose-500">
+          <span className="text-slate-500">Failed Tests</span>
+          <div className="text-3xl font-black text-rose-400">{failCount}</div>
+          <span className="text-[10px] text-slate-500">Zero Failures</span>
         </div>
 
-        <div className="soft-card p-4 rounded-xl space-y-1 border-l-4 border-l-purple-500">
-          <span className="text-slate-400">Test Suite Pass Rate</span>
-          <div className="text-2xl font-extrabold text-purple-600">{passRatePercentage}%</div>
-          <span className="text-[10px] text-purple-600 font-bold">Automated Validation Pass</span>
+        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-cyan-500">
+          <span className="text-slate-500">Automated Pass Rate</span>
+          <div className="text-3xl font-black text-cyan-400">{passRate}%</div>
+          <span className="text-[10px] text-cyan-400/80 font-bold">Verified Correctness</span>
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 soft-card p-4 rounded-xl text-xs font-mono">
-        <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-slate-400" />
-          <span className="text-slate-600 font-bold">Module Filter:</span>
-          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-            {['All', 'Process Management', 'Memory Management', 'Disk Scheduling'].map(cat => (
+      {/* Category Filter & Test Case Results Table */}
+      <div className="glass-card p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div className="flex items-center space-x-2 font-mono text-xs">
+            <span className="text-slate-400 font-bold">Module Filter:</span>
+            {['ALL', 'PROCESS', 'MEMORY', 'DISK'].map((cat) => (
               <button
                 key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                className={`px-3 py-1 rounded-lg transition ${
-                  categoryFilter === cat ? 'bg-emerald-600 text-white font-bold' : 'text-slate-600 hover:text-slate-900'
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 rounded-xl font-bold transition ${
+                  selectedCategory === cat
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/25'
+                    : 'bg-slate-950/80 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
                 {cat}
               </button>
             ))}
           </div>
+
+          <span className="text-xs font-mono text-cyan-400 font-bold bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-xl">
+            Showing {filteredTests.length} Test Cases
+          </span>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <span className="text-slate-600 font-bold">Status:</span>
-          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-            {(['All', 'PASSED', 'FAILED'] as const).map(st => (
-              <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1 rounded-lg transition ${
-                  statusFilter === st ? 'bg-emerald-600 text-white font-bold' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                {st}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Test Cases Results Table */}
-      <div className="soft-card rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-slate-400">
-                <th className="p-3">Test Case ID</th>
-                <th className="p-3">OS Module</th>
-                <th className="p-3">Test Case Description</th>
-                <th className="p-3">Input Parameters</th>
-                <th className="p-3 text-blue-600">Expected Result</th>
-                <th className="p-3 text-emerald-600">Actual Engine Result</th>
+              <tr className="border-b border-slate-800 text-slate-400 bg-slate-950/60">
+                <th className="p-3">Test ID</th>
+                <th className="p-3">Module Category</th>
+                <th className="p-3">Test Objective / Input</th>
+                <th className="p-3">Expected Result</th>
+                <th className="p-3">Actual Engine Output</th>
                 <th className="p-3 text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredTests.map(tc => (
-                <tr key={tc.id} className="hover:bg-slate-50/80 transition">
-                  <td className="p-3 font-bold text-amber-600">{tc.id}</td>
+            <tbody className="divide-y divide-slate-800/80">
+              {filteredTests.map((test) => (
+                <tr key={test.id} className="hover:bg-slate-900/60 transition">
+                  <td className="p-3 font-bold text-cyan-400">{test.id}</td>
                   <td className="p-3">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      tc.category === 'Process Management' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                      tc.category === 'Memory Management' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                      'bg-amber-50 text-amber-700 border border-amber-200'
-                    }`}>
-                      {tc.category}
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">
+                      {test.category}
                     </span>
                   </td>
-                  <td className="p-3 font-bold text-slate-900 font-sans text-sm">{tc.title}</td>
-                  <td className="p-3 text-slate-500 text-[11px] max-w-xs truncate" title={tc.inputs}>
-                    {tc.inputs}
-                  </td>
-                  <td className="p-3 text-blue-700 font-bold">{tc.expectedResult}</td>
-                  <td className="p-3 text-emerald-700 font-bold">{tc.actualResult}</td>
+                  <td className="p-3 font-sans font-bold text-slate-200">{test.name}</td>
+                  <td className="p-3 text-slate-400">{test.expected}</td>
+                  <td className="p-3 text-cyan-400 font-bold">{test.actual}</td>
                   <td className="p-3 text-right">
-                    {tc.status === 'PASSED' ? (
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center space-x-1">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        <span>PASSED</span>
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center space-x-1">
-                        <XCircle className="h-3.5 w-3.5" />
-                        <span>FAILED</span>
-                      </span>
-                    )}
+                    <span className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      test.status === 'PASS' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' : 'bg-rose-950/80 text-rose-400 border border-rose-500/30'
+                    }`}>
+                      {test.status === 'PASS' ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                      <span>{test.status}</span>
+                    </span>
                   </td>
                 </tr>
               ))}

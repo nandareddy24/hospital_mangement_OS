@@ -3,10 +3,10 @@ import type { AddressTranslationResult, PageReplacementResult, PageReplacementSt
 export const PAGE_SIZE_BYTES = 4096; // 4 KB
 export const RAM_BYTES = 4 * 1024 * 1024 * 1024; // 4 GB = 4,294,967,296 Bytes
 export const LOGICAL_SPACE_BYTES = 32 * 1024 * 1024; // 32 MB = 33,554,432 Bytes
-export const DEFAULT_NUM_FRAMES = 4; // Team 10 frames
+export const DEFAULT_NUM_FRAMES = 4; // Master physical frames
 
 /**
- * Dynamic calculation engine for Team 10 Memory Management parameters
+ * Dynamic calculation engine for Memory Management parameters
  */
 export function calculateTeam10MemoryStats(processPayloadBytes: number = LOGICAL_SPACE_BYTES) {
   const ramGB = 4;

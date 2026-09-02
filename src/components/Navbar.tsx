@@ -1,82 +1,109 @@
-import React from 'react';
-import { Layers, Lock, RefreshCw, Menu, X, Search, Bell, Settings, User } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Search,
+  RotateCcw,
+  Bell,
+  User,
+  Layers,
+  ShieldCheck
+} from 'lucide-react';
 
 interface NavbarProps {
-  onResetTeam10: () => void;
-  isOpenMobile: boolean;
-  setIsOpenMobile: (open: boolean) => void;
+  activeView: string;
+  onResetData: () => void;
+  onNavigateToView: (view: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onResetTeam10, isOpenMobile, setIsOpenMobile }) => {
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-6 flex items-center justify-between shadow-xs">
-      {/* Left: Brand Logo & Breadcrumb */}
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={() => setIsOpenMobile(!isOpenMobile)}
-          className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition"
-        >
-          {isOpenMobile ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+export const Navbar: React.FC<NavbarProps> = ({
+  activeView,
+  onResetData,
+  onNavigateToView
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
 
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
-            <Layers className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2 text-[11px] font-mono text-slate-400">
-              <span>Pages</span>
-              <span>/</span>
-              <span className="text-slate-800 font-bold">Dashboard</span>
-            </div>
-            <h1 className="text-sm font-extrabold text-slate-900 tracking-tight">
-              Soft UI Simulator <span className="text-xs font-mono text-orange-600 font-semibold">(Team 10)</span>
-            </h1>
-          </div>
+  const viewTitles: Record<string, { title: string; category: string }> = {
+    dashboard: { title: 'Dashboard', category: 'Pages' },
+    library: { title: 'Library Suite', category: 'Application Domain' },
+    process: { title: 'Process Management', category: 'OS Kernels' },
+    memory: { title: 'Memory Management', category: 'OS Kernels' },
+    disk: { title: 'Disk Scheduling', category: 'OS Kernels' },
+    results: { title: 'Results & Evaluation', category: 'Analysis' },
+    team10: { title: 'System Parameters', category: 'Specifications' },
+    testing: { title: 'Testing & Validation', category: 'Verification' },
+    about: { title: 'Project Documentation', category: 'Academic' }
+  };
+
+  const currentView = viewTitles[activeView] || { title: 'Dashboard', category: 'Pages' };
+
+  return (
+    <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between transition-all font-sans">
+      {/* Left: Breadcrumbs & Dynamic View Header */}
+      <div className="flex items-center space-x-4">
+        <div>
+          <nav className="flex items-center space-x-1.5 text-xs font-mono text-slate-400">
+            <span>{currentView.category}</span>
+            <span>/</span>
+            <span className="text-cyan-400 font-bold">{currentView.title}</span>
+          </nav>
+          <h1 className="text-lg font-black tracking-tight text-white flex items-center space-x-2">
+            <span>{currentView.title}</span>
+            <span className="text-xs font-mono text-slate-400 font-normal">
+              (OS Kernel Suite)
+            </span>
+          </h1>
         </div>
       </div>
 
-      {/* Right: Search, Status Pill & User Actions */}
+      {/* Right: Quick Search, Status Pills & Action Icons */}
       <div className="flex items-center space-x-3">
-        {/* Soft UI Search Bar */}
-        <div className="hidden sm:flex items-center space-x-2 bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl text-xs text-slate-600 focus-within:ring-2 focus-within:ring-orange-500/20 focus-within:border-orange-500 transition">
-          <Search className="h-3.5 w-3.5 text-slate-400" />
+        {/* Quick Search Input */}
+        <div className="relative hidden md:block">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Type here..."
-            className="bg-transparent border-none focus:outline-none text-slate-800 placeholder-slate-400 w-28 md:w-40 text-xs"
+            placeholder="Search OS Module / Book..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-48 lg:w-64 bg-slate-950/80 border border-slate-800 focus:border-cyan-500 text-slate-200 text-xs rounded-xl pl-9 pr-3 py-1.5 focus:outline-none transition-all placeholder:text-slate-500 font-mono"
           />
         </div>
 
-        {/* Team 10 Parameter Status Pill */}
-        <div className="hidden md:flex items-center space-x-2 bg-orange-50 border border-orange-200/80 px-3 py-1.5 rounded-xl text-xs font-mono text-orange-700">
-          <Lock className="h-3.5 w-3.5 text-orange-600" />
-          <span className="font-bold">Team 10 Locked</span>
-          <span className="text-[10px] text-orange-500">| RR Q=4 | 4GB | 0–130</span>
+        {/* Master Parameter Status Pill */}
+        <div className="hidden sm:flex items-center space-x-1.5 bg-cyan-950/40 border border-cyan-500/30 text-cyan-400 text-xs px-3 py-1.5 rounded-xl font-mono font-bold shadow-xs">
+          <ShieldCheck className="h-3.5 w-3.5 text-cyan-400" />
+          <span>Official Spec Locked</span>
         </div>
 
-        {/* Reset Team 10 Button */}
+        {/* Reset Defaults Button */}
         <button
-          onClick={onResetTeam10}
-          data-tooltip="Reset all sample data to official Team 10 values"
-          className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold font-mono shadow-md shadow-slate-900/10 flex items-center space-x-1.5 transition"
+          onClick={onResetData}
+          data-tooltip="Reset all sample data to official simulation values"
+          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold font-mono transition flex items-center space-x-1.5 shadow-xs"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Reset Team 10</span>
+          <RotateCcw className="h-3.5 w-3.5 text-cyan-400" />
+          <span className="hidden sm:inline">Reset Defaults</span>
         </button>
 
-        {/* Soft UI Icons */}
-        <div className="flex items-center space-x-1 border-l border-slate-200 pl-2 text-slate-500">
-          <button className="p-2 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
-            <User className="h-4 w-4" />
-          </button>
-          <button className="p-2 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
-            <Settings className="h-4 w-4" />
-          </button>
-          <button className="p-2 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition relative">
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-orange-500 ring-2 ring-white"></span>
-          </button>
+        {/* Navigation Quick Shortcuts */}
+        <button
+          onClick={() => onNavigateToView('team10')}
+          title="System Parameters"
+          className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition"
+        >
+          <Layers className="h-4 w-4" />
+        </button>
+
+        <button
+          onClick={() => onNavigateToView('about')}
+          title="Project Documentation"
+          className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition relative"
+        >
+          <Bell className="h-4 w-4" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
+        </button>
+
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md shadow-cyan-500/20">
+          <User className="h-4 w-4" />
         </div>
       </div>
     </header>

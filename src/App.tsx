@@ -43,11 +43,11 @@ export const App: React.FC = () => {
     setBooks(getStoredBooks());
     setMembers(getStoredMembers());
     setTransactions(getStoredTransactions());
-    
+
     logActivity(
       'PROCESS',
       'System Kernel Boot Completed',
-      'Loaded Team 10 OS parameters: Round Robin Q=4, RAM 4GB/4KB, Disk 0-130.',
+      'Loaded master OS parameters: Round Robin Q=4, RAM 4GB/4KB, Disk 0-130.',
       'success'
     );
   }, []);
@@ -66,84 +66,93 @@ export const App: React.FC = () => {
       details,
       status
     };
-    setActivityLogs(prev => [newLog, ...prev.slice(0, 49)]);
+    setActivityLogs(prev => [newLog, ...prev.slice(0, 19)]);
   };
 
-  const handleAddBook = (book: LMSBook) => {
-    const updated = [book, ...books];
+  const handleAddBook = (newBook: LMSBook) => {
+    const updated = [newBook, ...books];
     setBooks(updated);
     saveStoredBooks(updated);
-    showToast(`Book "${book.title}" added to catalog.`);
-    logActivity('LMS', 'Add Book', `Added book "${book.title}" (ISBN: ${book.isbn})`, 'success');
+    showToast(`Book "${newBook.title}" added to library catalog.`);
+    logActivity('LMS', 'Add New Book', `Added "${newBook.title}" (ISBN: ${newBook.isbn}).`, 'success');
   };
 
-  const handleEditBook = (book: LMSBook) => {
-    const updated = books.map(b => (b.id === book.id ? book : b));
+  const handleEditBook = (updatedBook: LMSBook) => {
+    const updated = books.map(b => b.id === updatedBook.id ? updatedBook : b);
     setBooks(updated);
     saveStoredBooks(updated);
-    showToast(`Book "${book.title}" updated.`);
-    logActivity('LMS', 'Edit Book', `Updated details for book ID ${book.id}`, 'info');
+    showToast(`Book "${updatedBook.title}" updated.`);
+    logActivity('LMS', 'Edit Book Details', `Updated "${updatedBook.title}".`, 'info');
   };
 
-  const handleDeleteBook = (id: string) => {
-    const target = books.find(b => b.id === id);
-    const updated = books.filter(b => b.id !== id);
+  const handleDeleteBook = (bookId: string) => {
+    const target = books.find(b => b.id === bookId);
+    const updated = books.filter(b => b.id !== bookId);
     setBooks(updated);
     saveStoredBooks(updated);
-    showToast(`Book deleted.`);
-    logActivity('LMS', 'Delete Book', `Deleted book ID ${id} (${target?.title || ''})`, 'warning');
+    showToast(`Book "${target?.title || bookId}" deleted.`);
+    logActivity('LMS', 'Delete Book', `Deleted book ID ${bookId}.`, 'warning');
   };
 
-  const handleAddMember = (member: LMSMember) => {
-    const updated = [member, ...members];
+  const handleAddMember = (newMember: LMSMember) => {
+    const updated = [newMember, ...members];
     setMembers(updated);
     saveStoredMembers(updated);
-    showToast(`Member "${member.name}" registered.`);
-    logActivity('LMS', 'Register Member', `Registered member "${member.name}" (${member.role})`, 'success');
+    showToast(`Member "${newMember.name}" registered.`);
+    logActivity('LMS', 'Register Member', `Registered member "${newMember.name}" (${newMember.role}).`, 'success');
   };
 
-  const handleEditMember = (member: LMSMember) => {
-    const updated = members.map(m => (m.id === member.id ? member : m));
+  const handleEditMember = (updatedMember: LMSMember) => {
+    const updated = members.map(m => m.id === updatedMember.id ? updatedMember : m);
     setMembers(updated);
     saveStoredMembers(updated);
-    showToast(`Member "${member.name}" updated.`);
-    logActivity('LMS', 'Edit Member', `Updated member details for ${member.id}`, 'info');
+    showToast(`Member "${updatedMember.name}" updated.`);
+    logActivity('LMS', 'Edit Member', `Updated member "${updatedMember.name}".`, 'info');
   };
 
-  const handleDeleteMember = (id: string) => {
-    const target = members.find(m => m.id === id);
-    const updated = members.filter(m => m.id !== id);
+  const handleDeleteMember = (memberId: string) => {
+    const target = members.find(m => m.id === memberId);
+    const updated = members.filter(m => m.id !== memberId);
     setMembers(updated);
     saveStoredMembers(updated);
-    showToast(`Member deleted.`);
-    logActivity('LMS', 'Delete Member', `Deleted member ID ${id} (${target?.name || ''})`, 'warning');
+    showToast(`Member "${target?.name || memberId}" deleted.`);
+    logActivity('LMS', 'Delete Member', `Deleted member ID ${memberId}.`, 'warning');
   };
 
   const handleIssueBook = (bookId: string, memberId: string, issueDate: string, dueDate: string) => {
-    const targetBook = books.find(b => b.id === bookId);
-    const targetMember = members.find(m => m.id === memberId);
-    if (!targetBook || !targetMember) return;
+    const book = books.find(b => b.id === bookId);
+    const member = members.find(m => m.id === memberId);
+
+    if (!book || !member) return;
+    if (book.availableCopies <= 0) {
+      showToast(`Error: Book "${book.title}" has zero available copies.`);
+      return;
+    }
 
     const newTx: LMSTransaction = {
       id: 'TX-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
       bookId,
-      bookTitle: targetBook.title,
+      bookTitle: book.title,
       memberId,
-      memberName: targetMember.name,
+      memberName: member.name,
       issueDate,
       dueDate,
       status: 'Issued',
       overdueDays: 0,
-      fineAmount: 0
+      fineAmount: 0.00
     };
+
+    const updatedTx = [newTx, ...transactions];
+    setTransactions(updatedTx);
+    saveStoredTransactions(updatedTx);
 
     const updatedBooks = books.map(b => {
       if (b.id === bookId) {
-        const newAvailable = Math.max(0, b.availableCopies - 1);
+        const newAvail = b.availableCopies - 1;
         return {
           ...b,
-          availableCopies: newAvailable,
-          status: (newAvailable === 0 ? 'Out of Stock' : 'Partially Issued') as any
+          availableCopies: newAvail,
+          status: (newAvail <= 0 ? 'Out of Stock' : 'Partially Issued') as any
         };
       }
       return b;
@@ -151,39 +160,31 @@ export const App: React.FC = () => {
     setBooks(updatedBooks);
     saveStoredBooks(updatedBooks);
 
-    const updatedTx = [newTx, ...transactions];
-    setTransactions(updatedTx);
-    saveStoredTransactions(updatedTx);
-
-    showToast(`Book "${targetBook.title}" issued to ${targetMember.name}.`);
+    showToast(`Issued "${book.title}" to ${member.name}.`);
     logActivity(
       'LMS',
       'Issue Book Transaction',
-      `Issued "${targetBook.title}" to ${targetMember.name}. Triggered CPU Round Robin task & Page Translation.`,
+      `Issued "${book.title}" to ${member.name} (Due: ${dueDate}).`,
       'success'
     );
   };
 
-  const handleReturnBook = (txId: string, returnDate: string) => {
-    const tx = transactions.find(t => t.id === txId);
+  const handleReturnBook = (transactionId: string, returnDate: string) => {
+    const tx = transactions.find(t => t.id === transactionId);
     if (!tx) return;
 
-    let overdueDays = 0;
-    let fineAmount = 0;
     const due = new Date(tx.dueDate);
     const ret = new Date(returnDate);
-    if (ret > due) {
-      const diffTime = Math.abs(ret.getTime() - due.getTime());
-      overdueDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      fineAmount = overdueDays * 1.0;
-    }
+    const diffTime = ret.getTime() - due.getTime();
+    const overdueDays = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+    const fineAmount = overdueDays * 1; // $1.00 per day
 
     const updatedTx = transactions.map(t => {
-      if (t.id === txId) {
+      if (t.id === transactionId) {
         return {
           ...t,
           returnDate,
-          status: 'Returned' as const,
+          status: 'Returned' as any,
           overdueDays,
           fineAmount
         };
@@ -216,35 +217,35 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleResetTeam10 = () => {
+  const handleResetDefaults = () => {
     const { books: b, members: m, transactions: t } = resetAllLMSStorage();
     setBooks(b);
     setMembers(m);
     setTransactions(t);
-    showToast('Team 10 sample data reset successfully.');
-    logActivity('PROCESS', 'Reset Team 10 Parameters', 'Restored initial sample data for Team 10.', 'warning');
+    showToast('Official master sample data reset successfully.');
+    logActivity('PROCESS', 'Reset Master Parameters', 'Restored initial sample data to defaults.', 'warning');
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090d16] text-gray-100 font-sans">
+    <div className="min-h-screen flex flex-col bg-[#070a12] text-slate-100 font-sans">
       <Navbar
-        onResetTeam10={handleResetTeam10}
-        isOpenMobile={isOpenMobile}
-        setIsOpenMobile={setIsOpenMobile}
+        activeView={activeView}
+        onResetData={handleResetDefaults}
+        onNavigateToView={setActiveView}
       />
 
-      <div className="flex flex-1 pt-16">
+      <div className="flex flex-1">
         <Sidebar
           activeView={activeView}
-          setActiveView={setActiveView}
-          isOpenMobile={isOpenMobile}
-          setIsOpenMobile={setIsOpenMobile}
+          onNavigateToView={setActiveView}
+          isOpen={isOpenMobile}
+          onCloseMobile={() => setIsOpenMobile(false)}
         />
 
-        <main className="flex-1 lg:ml-64 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+        <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
           {toastMessage && (
-            <div className="fixed bottom-6 right-6 z-50 p-4 bg-emerald-950/90 border border-emerald-700/80 text-emerald-200 rounded-2xl shadow-2xl backdrop-blur-md text-xs font-mono flex items-center space-x-3 animate-fade-in">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div className="fixed bottom-6 right-6 z-50 p-4 bg-slate-900/95 border border-cyan-500/40 text-cyan-300 rounded-2xl shadow-2xl backdrop-blur-md text-xs font-mono flex items-center space-x-3 animate-fade-in">
+              <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
               <span>{toastMessage}</span>
             </div>
           )}
@@ -272,7 +273,7 @@ export const App: React.FC = () => {
               onDeleteMember={handleDeleteMember}
               onIssueBook={handleIssueBook}
               onReturnBook={handleReturnBook}
-              onResetData={handleResetTeam10}
+              onResetData={handleResetDefaults}
             />
           )}
 
@@ -284,7 +285,7 @@ export const App: React.FC = () => {
           {activeView === 'team10' && (
             <TeamParametersView
               onNavigateToView={setActiveView}
-              onResetTeam10={handleResetTeam10}
+              onResetTeam10={handleResetDefaults}
             />
           )}
           {activeView === 'about' && <AboutProjectView />}

@@ -1,7 +1,7 @@
 import type { Team10Parameters, LMSBook, LMSMember, LMSTransaction } from '../types/os';
 
-export const TEAM_10_DEFAULTS: Team10Parameters = {
-  teamName: "Team 10",
+export const OFFICIAL_SIMULATION_DEFAULTS: Team10Parameters = {
+  teamName: "Academic Master Spec",
   processes: [
     { id: "p1", name: "P1", arrivalTime: 0, burstTime: 6, color: "#3B82F6" },
     { id: "p2", name: "P2", arrivalTime: 2, burstTime: 2, color: "#10B981" },
@@ -19,6 +19,8 @@ export const TEAM_10_DEFAULTS: Team10Parameters = {
   initialHead: 65,
   diskQueue: [25, 105, 40, 115, 55, 90, 10, 120]
 };
+
+export const TEAM_10_DEFAULTS = OFFICIAL_SIMULATION_DEFAULTS; // Alias for backward compatibility
 
 export const INITIAL_BOOKS: LMSBook[] = [
   {

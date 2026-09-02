@@ -2,27 +2,27 @@
 
 @layer base {
   :root {
-    --bg-main: #f8fafc;
-    --card-bg: #ffffff;
-    --border-color: #e2e8f0;
-    --text-primary: #0f172a;
-    --text-muted: #64748b;
-    --accent-orange: #f97316;
-    --accent-dark: #0f172a;
-    --accent-blue: #3b82f6;
+    --bg-main: #070a12;
+    --card-bg: rgba(15, 23, 42, 0.7);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-cyan: #06b6d4;
+    --accent-indigo: #6366f1;
     --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #070a12;
+    color: #f8fafc;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', 'Inter', sans-serif;
-    color: #0f172a;
+    color: #f8fafc;
   }
 
   code, pre, .font-mono {
@@ -30,56 +30,85 @@
   }
 }
 
-/* Soft UI Card Design Token Classes */
+/* Glassmorphism & High-Contrast Dark Card Tokens */
+.glass-card {
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 20px 0 rgba(6, 182, 212, 0.12);
+}
+
+.glass-panel {
+  background-color: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
+  border-radius: 1.5rem;
+}
+
+/* Soft Compatibility Aliases for Seamless Upgrade */
 .soft-card {
-  background-color: #ffffff;
-  border-radius: 1rem;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
   transition: all 0.25s ease-in-out;
 }
 
 .soft-card:hover {
-  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
 }
 
 .soft-panel {
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+  background-color: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   border-radius: 1.25rem;
 }
 
-.soft-gradient-orange {
-  background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%);
+.soft-gradient-orange, .gradient-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 50%, #2563eb 100%);
   color: #ffffff;
-  box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.35);
+  box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.4);
 }
 
-.soft-gradient-dark {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+.soft-gradient-dark, .gradient-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #070a12 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-.soft-gradient-blue {
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+.gradient-indigo {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
   color: #ffffff;
-  box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
 }
 
-.soft-gradient-emerald {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+.gradient-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
-  box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
 }
 
 .badge-academic {
-  background-color: #fff7ed;
-  color: #ea580c;
-  border: 1px solid #fed7aa;
+  background-color: rgba(6, 182, 212, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
   font-size: 0.7rem;
   font-family: 'JetBrains Mono', monospace;
   padding: 0.2rem 0.65rem;
@@ -89,7 +118,7 @@
   letter-spacing: 0.05em;
 }
 
-/* Custom Tooltip Styling for Soft UI Light Theme */
+/* Custom Tooltip Styling */
 [data-tooltip] {
   position: relative;
   cursor: help;
@@ -103,13 +132,14 @@
   transform: translateX(-50%);
   padding: 0.45rem 0.8rem;
   background-color: #0f172a;
-  color: #ffffff;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 0.7rem;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
   white-space: nowrap;
   border-radius: 0.6rem;
-  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.5);
   z-index: 50;
   pointer-events: none;
 }
@@ -127,13 +157,32 @@
   pointer-events: none;
 }
 
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070a12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
 /* Print styles */
 @media print {
   body {
     background-color: white !important;
     color: black !important;
   }
-  .soft-card, .soft-panel {
+  .glass-card, .glass-panel, .soft-card, .soft-panel {
     background: white !important;
     border: 1px solid #ccc !important;
     color: black !important;
