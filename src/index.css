@@ -2,24 +2,27 @@
 
 @layer base {
   :root {
-    --bg-main: #090d16;
-    --card-bg: rgba(15, 23, 42, 0.75);
-    --border-color: rgba(30, 41, 59, 0.8);
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --accent-orange: #f97316;
+    --accent-dark: #0f172a;
     --accent-blue: #3b82f6;
     --accent-emerald: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-purple: #8b5cf6;
   }
 
   body {
-    background-color: #090d16;
-    color: #f8fafc;
+    background-color: #f8fafc;
+    color: #0f172a;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', 'Inter', sans-serif;
+    color: #0f172a;
   }
 
   code, pre, .font-mono {
@@ -27,34 +30,66 @@
   }
 }
 
-.glass-card {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
+/* Soft UI Card Design Token Classes */
+.soft-card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease-in-out;
 }
 
-.glass-panel {
-  background: rgba(15, 23, 42, 0.95);
+.soft-card:hover {
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+}
+
+.soft-panel {
+  background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.8);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+  border-radius: 1.25rem;
+}
+
+.soft-gradient-orange {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.35);
+}
+
+.soft-gradient-dark {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3);
+}
+
+.soft-gradient-blue {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
+}
+
+.soft-gradient-emerald {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
 }
 
 .badge-academic {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
   font-size: 0.7rem;
   font-family: 'JetBrains Mono', monospace;
-  padding: 0.2rem 0.6rem;
+  padding: 0.2rem 0.65rem;
   border-radius: 9999px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* Custom Tooltip Styling */
+/* Custom Tooltip Styling for Soft UI Light Theme */
 [data-tooltip] {
   position: relative;
   cursor: help;
@@ -66,16 +101,15 @@
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%);
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.8rem;
   background-color: #0f172a;
-  color: #e2e8f0;
+  color: #ffffff;
   font-size: 0.7rem;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
   white-space: nowrap;
-  border-radius: 0.5rem;
-  border: 1px solid #334155;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  border-radius: 0.6rem;
+  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.25);
   z-index: 50;
   pointer-events: none;
 }
@@ -99,7 +133,7 @@
     background-color: white !important;
     color: black !important;
   }
-  .glass-card, .glass-panel {
+  .soft-card, .soft-panel {
     background: white !important;
     border: 1px solid #ccc !important;
     color: black !important;

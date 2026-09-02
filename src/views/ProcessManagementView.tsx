@@ -20,7 +20,6 @@ export const ProcessManagementView: React.FC = () => {
 
   const activeResult = selectedAlgo === 'RR' ? rrResult : selectedAlgo === 'FCFS' ? fcfsResult : sjfResult;
 
-  // Verification Data Handlers for Averages
   const showAvgWTCalculation = () => {
     setGenericVerificationModal({
       title: 'Average Waiting Time (WT) Derivation',
@@ -94,40 +93,40 @@ export const ProcessManagementView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="glass-card p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-blue-950/50 via-gray-950 to-gray-950 border border-blue-900/40">
+    <div className="space-y-8 animate-fade-in font-sans">
+      <div className="soft-card p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-orange-500">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">Process Management &amp; CPU Scheduling</h1>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Process Management &amp; CPU Scheduling</h1>
             <span className="badge-academic">Team 10 Official Suite</span>
           </div>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Pre-configured strictly with Team 10 parameters. All metrics generated dynamically by Round Robin algorithm.
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className="flex bg-gray-900 p-1 rounded-xl border border-gray-800 text-xs font-mono">
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-mono">
             <button
               onClick={() => setSelectedAlgo('RR')}
-              className={`px-3.5 py-1.5 rounded-lg font-semibold transition ${
-                selectedAlgo === 'RR' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-400 hover:text-gray-200'
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition ${
+                selectedAlgo === 'RR' ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Round Robin (Q={timeQuantum}) *Team 10
             </button>
             <button
               onClick={() => setSelectedAlgo('FCFS')}
-              className={`px-3.5 py-1.5 rounded-lg font-semibold transition ${
-                selectedAlgo === 'FCFS' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition ${
+                selectedAlgo === 'FCFS' ? 'bg-orange-500 text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               FCFS
             </button>
             <button
               onClick={() => setSelectedAlgo('SJF')}
-              className={`px-3.5 py-1.5 rounded-lg font-semibold transition ${
-                selectedAlgo === 'SJF' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition ${
+                selectedAlgo === 'SJF' ? 'bg-orange-500 text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               SJF
@@ -137,22 +136,22 @@ export const ProcessManagementView: React.FC = () => {
       </div>
 
       {/* 1. Input Process Table */}
-      <div className="glass-card p-5 rounded-2xl space-y-4 border border-blue-900/40">
+      <div className="soft-card p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-gray-200 flex items-center space-x-2">
-            <Cpu className="h-4 w-4 text-blue-400" />
+          <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
+            <Cpu className="h-4 w-4 text-orange-500" />
             <span>1. Official Team 10 Input Process Parameters</span>
           </h3>
-          <div className="flex items-center space-x-2 text-xs font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-1 rounded-lg">
+          <div className="flex items-center space-x-2 text-xs font-mono text-orange-700 bg-orange-50 border border-orange-200 px-3 py-1 rounded-xl font-bold">
             <Lock className="h-3.5 w-3.5" />
-            <span>Team 10 Values Enforced (Q = {timeQuantum})</span>
+            <span>Team 10 Locked (Q = {timeQuantum})</span>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-gray-800 text-gray-400 bg-gray-950/60">
+              <tr className="border-b border-slate-100 text-slate-400 bg-slate-50">
                 <th className="p-3">Process ID</th>
                 <th className="p-3">Arrival Time (AT)</th>
                 <th className="p-3">Burst Time (BT)</th>
@@ -160,18 +159,18 @@ export const ProcessManagementView: React.FC = () => {
                 <th className="p-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/80">
+            <tbody className="divide-y divide-slate-100">
               {processes.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-900/40">
-                  <td className="p-3 font-bold text-white flex items-center space-x-2">
+                <tr key={p.id} className="hover:bg-slate-50/80">
+                  <td className="p-3 font-bold text-slate-900 flex items-center space-x-2">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }}></span>
                     <span className="text-sm font-sans">{p.name}</span>
                   </td>
-                  <td className="p-3 text-gray-200 font-bold">{p.arrivalTime} time units</td>
-                  <td className="p-3 text-gray-200 font-bold">{p.burstTime} time units</td>
-                  <td className="p-3 text-blue-400 font-bold">{timeQuantum} time units</td>
+                  <td className="p-3 text-slate-700 font-bold">{p.arrivalTime} time units</td>
+                  <td className="p-3 text-slate-700 font-bold">{p.burstTime} time units</td>
+                  <td className="p-3 text-orange-600 font-bold">{timeQuantum} time units</td>
                   <td className="p-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-950 text-blue-300 border border-blue-800">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
                       Team 10 Official
                     </span>
                   </td>
@@ -184,57 +183,57 @@ export const ProcessManagementView: React.FC = () => {
 
       {/* 2. Gantt Chart Visualization Section */}
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-gray-200 flex items-center space-x-2 px-1">
+        <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2 px-1">
           <span>3. Dynamic Execution Gantt Chart Timeline</span>
         </h3>
         <GanttChart scheduleResult={activeResult} timeQuantum={timeQuantum} />
       </div>
 
       {/* 3. Ready Queue Step-by-Step Execution Log */}
-      <div className="glass-card p-5 rounded-2xl space-y-4">
+      <div className="soft-card p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-gray-200 flex items-center space-x-2">
-            <ArrowRight className="h-4 w-4 text-emerald-400" />
+          <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
+            <ArrowRight className="h-4 w-4 text-emerald-600" />
             <span>2 &amp; Step-by-Step Execution: Round Robin Ready Queue Transitions</span>
           </h3>
-          <span className="text-xs font-mono text-gray-400">Total Steps: {rrResult.steps.length}</span>
+          <span className="text-xs font-mono text-slate-500 font-bold">Total Steps: {rrResult.steps.length}</span>
         </div>
 
         <div className="overflow-x-auto max-h-[380px]">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="sticky top-0 bg-gray-950 border-b border-gray-800 text-gray-400">
+            <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-500">
               <tr>
                 <th className="py-2.5 px-3">Step #</th>
                 <th className="py-2.5 px-3">Time (t)</th>
                 <th className="py-2.5 px-3">Active CPU Process</th>
-                <th className="py-2.5 px-3 text-emerald-400">Ready Queue State (HEAD &rarr; TAIL)</th>
+                <th className="py-2.5 px-3 text-emerald-700">Ready Queue State (HEAD &rarr; TAIL)</th>
                 <th className="py-2.5 px-3">Remaining Bursts [P1,P2,P3,P4,P5]</th>
                 <th className="py-2.5 px-3">Context Event Description</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/60">
+            <tbody className="divide-y divide-slate-100">
               {rrResult.steps.map((step) => (
-                <tr key={step.stepIndex} className="hover:bg-gray-900/50">
-                  <td className="py-2.5 px-3 text-gray-400 font-bold">Step {step.stepIndex}</td>
-                  <td className="py-2.5 px-3 text-blue-400 font-bold">t = {step.time}</td>
-                  <td className="py-2.5 px-3 font-bold text-white">
+                <tr key={step.stepIndex} className="hover:bg-slate-50/80">
+                  <td className="py-2.5 px-3 text-slate-500 font-bold">Step {step.stepIndex}</td>
+                  <td className="py-2.5 px-3 text-orange-600 font-bold">t = {step.time}</td>
+                  <td className="py-2.5 px-3 font-bold text-slate-900">
                     {step.activeProcessName ? (
-                      <span className="px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 font-bold">
+                      <span className="px-2 py-0.5 rounded-lg bg-orange-50 text-orange-700 border border-orange-200 font-bold">
                         {step.activeProcessName}
                       </span>
                     ) : (
-                      <span className="text-gray-500 italic">CPU IDLE</span>
+                      <span className="text-slate-400 italic">CPU IDLE</span>
                     )}
                   </td>
                   <td className="py-2.5 px-3">
                     {step.readyQueue.length === 0 ? (
-                      <span className="text-gray-500 italic">[ Empty Queue ]</span>
+                      <span className="text-slate-400 italic">[ Empty Queue ]</span>
                     ) : (
                       <div className="flex items-center space-x-1">
                         {step.readyQueue.map((pid, idx) => {
                           const pName = processes.find(p => p.id === pid)?.name || pid;
                           return (
-                            <span key={idx} className="px-2 py-0.5 bg-gray-800 border border-gray-700 text-blue-300 rounded font-bold">
+                            <span key={idx} className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-800 rounded font-bold">
                               {pName}
                             </span>
                           );
@@ -242,10 +241,10 @@ export const ProcessManagementView: React.FC = () => {
                       </div>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 text-gray-300 font-mono text-[11px]">
+                  <td className="py-2.5 px-3 text-slate-600 font-mono text-[11px]">
                     [{processes.map(p => step.remainingBurstTimes[p.id] ?? 0).join(', ')}]
                   </td>
-                  <td className="py-2.5 px-3 text-gray-300 text-[11px]">{step.description}</td>
+                  <td className="py-2.5 px-3 text-slate-600 text-[11px]">{step.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -254,13 +253,13 @@ export const ProcessManagementView: React.FC = () => {
       </div>
 
       {/* 4. Calculated Process Metrics Table & Verification Tools */}
-      <div className="glass-card p-5 rounded-2xl space-y-4">
+      <div className="soft-card p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-gray-200 flex items-center space-x-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+          <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <span>4–7. Calculated Process Timing Metrics Table</span>
           </h3>
-          <span className="text-xs font-mono text-emerald-400 font-bold">
+          <span className="text-xs font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl font-bold">
             CPU Utilization: {activeResult.cpuUtilization}%
           </span>
         </div>
@@ -268,34 +267,34 @@ export const ProcessManagementView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-gray-800 text-gray-400 bg-gray-950/60">
+              <tr className="border-b border-slate-100 text-slate-400 bg-slate-50">
                 <th className="p-3">Process</th>
                 <th className="p-3">Arrival Time (AT)</th>
                 <th className="p-3">Burst Time (BT)</th>
-                <th className="p-3 text-gray-200">Completion Time (CT)</th>
-                <th className="p-3 text-blue-400">Turnaround Time (TAT = CT - AT)</th>
-                <th className="p-3 text-amber-400">Waiting Time (WT = TAT - BT)</th>
-                <th className="p-3 text-emerald-400">Response Time (RT = FirstCPU - AT)</th>
+                <th className="p-3 text-slate-900">Completion Time (CT)</th>
+                <th className="p-3 text-orange-600">Turnaround Time (TAT = CT - AT)</th>
+                <th className="p-3 text-amber-600">Waiting Time (WT = TAT - BT)</th>
+                <th className="p-3 text-emerald-600">Response Time (RT = FirstCPU - AT)</th>
                 <th className="p-3 text-right">Proof Verification</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/80">
+            <tbody className="divide-y divide-slate-100">
               {activeResult.metrics.map((m) => (
-                <tr key={m.id} className="hover:bg-gray-900/50">
-                  <td className="p-3 font-bold text-white flex items-center space-x-2">
+                <tr key={m.id} className="hover:bg-slate-50/80">
+                  <td className="p-3 font-bold text-slate-900 flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.color }}></span>
                     <span className="text-sm font-sans">{m.name}</span>
                   </td>
-                  <td className="p-3 text-gray-300">{m.arrivalTime}</td>
-                  <td className="p-3 text-gray-300">{m.burstTime}</td>
-                  <td className="p-3 text-white font-bold">{m.completionTime}</td>
-                  <td className="p-3 text-blue-400 font-bold">{m.turnaroundTime}</td>
-                  <td className="p-3 text-amber-400 font-bold">{m.waitingTime}</td>
-                  <td className="p-3 text-emerald-400 font-bold">{m.responseTime}</td>
+                  <td className="p-3 text-slate-600">{m.arrivalTime}</td>
+                  <td className="p-3 text-slate-600">{m.burstTime}</td>
+                  <td className="p-3 text-slate-900 font-bold">{m.completionTime}</td>
+                  <td className="p-3 text-orange-600 font-bold">{m.turnaroundTime}</td>
+                  <td className="p-3 text-amber-600 font-bold">{m.waitingTime}</td>
+                  <td className="p-3 text-emerald-600 font-bold">{m.responseTime}</td>
                   <td className="p-3 text-right">
                     <button
                       onClick={() => setSelectedVerifyProcess(m)}
-                      className="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-semibold transition flex items-center space-x-1 ml-auto"
+                      className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 ml-auto shadow-xs"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       <span>Show Calculation</span>
@@ -309,36 +308,36 @@ export const ProcessManagementView: React.FC = () => {
 
         {/* Summary Averages Display Cards with "Show Calculation" Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 font-mono">
-          <div className="p-4 bg-gray-950 rounded-xl border border-gray-800 text-center space-y-2 relative group">
-            <span className="text-xs text-gray-400 block">8. Average Waiting Time</span>
-            <div className="text-2xl font-bold text-amber-400">{activeResult.avgWaitingTime} <span className="text-xs text-gray-500 font-normal">units</span></div>
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+            <span className="text-xs text-slate-500 block font-bold">8. Average Waiting Time</span>
+            <div className="text-2xl font-extrabold text-amber-600">{activeResult.avgWaitingTime} <span className="text-xs text-slate-400 font-normal">units</span></div>
             <button
               onClick={showAvgWTCalculation}
-              className="w-full py-1 bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-800/60 rounded-lg text-[11px] font-semibold transition flex items-center justify-center space-x-1"
+              className="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl text-[11px] font-bold shadow-xs transition flex items-center justify-center space-x-1"
             >
               <Calculator className="h-3 w-3" />
               <span>Show Calculation</span>
             </button>
           </div>
 
-          <div className="p-4 bg-gray-950 rounded-xl border border-gray-800 text-center space-y-2 relative group">
-            <span className="text-xs text-gray-400 block">9. Average Turnaround Time</span>
-            <div className="text-2xl font-bold text-blue-400">{activeResult.avgTurnaroundTime} <span className="text-xs text-gray-500 font-normal">units</span></div>
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+            <span className="text-xs text-slate-500 block font-bold">9. Average Turnaround Time</span>
+            <div className="text-2xl font-extrabold text-orange-600">{activeResult.avgTurnaroundTime} <span className="text-xs text-slate-400 font-normal">units</span></div>
             <button
               onClick={showAvgTATCalculation}
-              className="w-full py-1 bg-blue-950/60 hover:bg-blue-900/60 text-blue-300 border border-blue-800/60 rounded-lg text-[11px] font-semibold transition flex items-center justify-center space-x-1"
+              className="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl text-[11px] font-bold shadow-xs transition flex items-center justify-center space-x-1"
             >
               <Calculator className="h-3 w-3" />
               <span>Show Calculation</span>
             </button>
           </div>
 
-          <div className="p-4 bg-gray-950 rounded-xl border border-gray-800 text-center space-y-2 relative group">
-            <span className="text-xs text-gray-400 block">10. Average Response Time</span>
-            <div className="text-2xl font-bold text-emerald-400">{activeResult.avgResponseTime} <span className="text-xs text-gray-500 font-normal">units</span></div>
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+            <span className="text-xs text-slate-500 block font-bold">10. Average Response Time</span>
+            <div className="text-2xl font-extrabold text-emerald-600">{activeResult.avgResponseTime} <span className="text-xs text-slate-400 font-normal">units</span></div>
             <button
               onClick={showAvgRTCalculation}
-              className="w-full py-1 bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/60 rounded-lg text-[11px] font-semibold transition flex items-center justify-center space-x-1"
+              className="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl text-[11px] font-bold shadow-xs transition flex items-center justify-center space-x-1"
             >
               <Calculator className="h-3 w-3" />
               <span>Show Calculation</span>
@@ -349,79 +348,67 @@ export const ProcessManagementView: React.FC = () => {
 
       {/* VERIFY PROCESS CALCULATION MODAL */}
       {selectedVerifyProcess && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel w-full max-w-xl p-6 rounded-2xl space-y-5 border border-blue-900/50 animate-fade-in font-mono text-xs">
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="soft-panel w-full max-w-xl p-6 rounded-2xl space-y-5 border border-slate-200 animate-fade-in font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center space-x-2">
                 <span className="w-3 h-3 rounded-full" style={{ backgroundColor: selectedVerifyProcess.color }}></span>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-base font-bold text-slate-900">
                   Mathematical Calculation Proof: {selectedVerifyProcess.name}
                 </h3>
               </div>
-              <button onClick={() => setSelectedVerifyProcess(null)} className="text-gray-400 hover:text-white">
+              <button onClick={() => setSelectedVerifyProcess(null)} className="text-slate-400 hover:text-slate-900">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="p-3 bg-gray-950 rounded-xl border border-gray-800 space-y-1">
-                <div className="text-blue-400 font-bold">1. Turnaround Time (TAT) Calculation:</div>
-                <div className="text-gray-200">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                <div className="text-orange-600 font-bold">1. Turnaround Time (TAT) Calculation:</div>
+                <div className="text-slate-700">
                   Turnaround Time = Completion Time (CT) - Arrival Time (AT)
                 </div>
-                <div className="text-emerald-400 font-bold text-sm">
+                <div className="text-orange-700 font-bold text-sm">
                   TAT = {selectedVerifyProcess.completionTime} - {selectedVerifyProcess.arrivalTime} = {selectedVerifyProcess.turnaroundTime} time units
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-950 rounded-xl border border-gray-800 space-y-1">
-                <div className="text-amber-400 font-bold">2. Waiting Time (WT) Calculation:</div>
-                <div className="text-gray-200">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                <div className="text-amber-600 font-bold">2. Waiting Time (WT) Calculation:</div>
+                <div className="text-slate-700">
                   Waiting Time = Turnaround Time (TAT) - Burst Time (BT)
                 </div>
-                <div className="text-amber-300 font-bold text-sm">
+                <div className="text-amber-700 font-bold text-sm">
                   WT = {selectedVerifyProcess.turnaroundTime} - {selectedVerifyProcess.burstTime} = {selectedVerifyProcess.waitingTime} time units
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-950 rounded-xl border border-gray-800 space-y-1">
-                <div className="text-emerald-400 font-bold">3. Response Time (RT) Calculation:</div>
-                <div className="text-gray-200">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                <div className="text-emerald-600 font-bold">3. Response Time (RT) Calculation:</div>
+                <div className="text-slate-700">
                   Response Time = First CPU Start Time - Arrival Time (AT)
                 </div>
-                <div className="text-emerald-300 font-bold text-sm">
+                <div className="text-emerald-700 font-bold text-sm">
                   RT = {selectedVerifyProcess.firstExecutionTime} - {selectedVerifyProcess.arrivalTime} = {selectedVerifyProcess.responseTime} time units
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-950 rounded-xl border border-gray-800 space-y-2">
-                <div className="text-purple-400 font-bold">CPU Execution Intervals:</div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="text-slate-900 font-bold">CPU Execution Intervals:</div>
                 <div className="flex flex-wrap gap-2 text-[11px]">
                   {selectedVerifyProcess.executionIntervals.map((slice, idx) => (
-                    <span key={idx} className="px-2.5 py-1 bg-blue-950 text-blue-300 border border-blue-800 rounded font-bold">
+                    <span key={idx} className="px-2.5 py-1 bg-white border border-slate-200 text-slate-800 rounded-lg font-bold">
                       Interval {idx + 1}: t={slice.start} to t={slice.end} ({slice.end - slice.start} units)
                     </span>
                   ))}
                 </div>
               </div>
-
-              <div className="p-3 bg-gray-950 rounded-xl border border-gray-800 space-y-2">
-                <div className="text-rose-400 font-bold">Ready Queue Waiting Intervals:</div>
-                <div className="space-y-1 text-[11px] text-gray-300">
-                  {selectedVerifyProcess.waitingIntervals.map((wait, idx) => (
-                    <div key={idx} className="flex justify-between border-b border-gray-900 pb-0.5">
-                      <span>Wait Phase {idx + 1}: t={wait.start} to t={wait.end} ({wait.end - wait.start} units)</span>
-                      <span className="text-gray-500 text-[10px]">{wait.reason}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-2 border-t border-slate-200">
               <button
                 onClick={() => setSelectedVerifyProcess(null)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/20"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-md transition"
               >
                 Close Proof
               </button>

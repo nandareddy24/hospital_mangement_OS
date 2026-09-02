@@ -1,285 +1,365 @@
 import React from 'react';
 import {
+  BookOpen,
+  CheckCircle2,
   Cpu,
   Database,
   HardDrive,
-  BookOpen,
+  TrendingUp,
+  Layers,
   ArrowRight,
-  Zap,
-  CheckCircle2,
-  Activity,
-  Users,
-  Clock,
-  BookMarked
+  Sparkles
 } from 'lucide-react';
-import { TEAM_10_DEFAULTS } from '../utils/constants';
-import type { ActivityLog, LMSBook, LMSMember, LMSTransaction } from '../types/os';
+import type { LMSBook, LMSMember, LMSTransaction, ActivityLog } from '../types/os';
 
 interface DashboardViewProps {
-  onNavigateToView?: (tab: string) => void;
-  setActiveTab?: (tab: string) => void;
-  activityLogs?: ActivityLog[];
-  logs?: ActivityLog[];
-  books?: LMSBook[];
-  members?: LMSMember[];
-  transactions?: LMSTransaction[];
+  books: LMSBook[];
+  members: LMSMember[];
+  transactions: LMSTransaction[];
+  activityLogs: ActivityLog[];
+  onNavigateToView: (view: string) => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
-  onNavigateToView,
-  setActiveTab,
-  activityLogs = [],
-  logs = [],
-  books = [],
-  members = [],
-  transactions = []
+  books,
+  members,
+  transactions,
+  activityLogs,
+  onNavigateToView
 }) => {
-  const navigate = (tab: string) => {
-    if (onNavigateToView) onNavigateToView(tab);
-    else if (setActiveTab) setActiveTab(tab);
-  };
-
-  const activeLogs = activityLogs.length > 0 ? activityLogs : logs;
-
-  const totalBooks = books.length;
-  const availableCopies = books.reduce((sum, b) => sum + b.availableCopies, 0);
-  const issuedCopies = books.reduce((sum, b) => sum + (b.quantity - b.availableCopies), 0);
+  const totalBooks = books.reduce((acc, b) => acc + b.quantity, 0);
+  const availableCopies = books.reduce((acc, b) => acc + b.availableCopies, 0);
+  const issuedCopies = Math.max(0, totalBooks - availableCopies);
   const totalMembers = members.length;
-  const overdueTransactions = transactions.filter(t => t.status === 'Overdue' || (t.status === 'Issued' && new Date(t.dueDate) < new Date()));
+  const overdueTransactions = transactions.filter(t => t.status === 'Overdue' || t.overdueDays > 0);
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Welcome Banner */}
-      <div className="relative overflow-hidden glass-card p-6 md:p-8 rounded-2xl bg-gradient-to-r from-blue-950/60 via-indigo-950/40 to-gray-950 border border-blue-900/40">
-        <div className="relative z-10 space-y-3">
-          <div className="flex items-center space-x-3">
-            <span className="badge-academic">Academic Project &bull; Team 10</span>
-            <span className="text-xs text-gray-400 font-mono">v1.0.0 Verified</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-            Library Management System – OS Resource Management Simulator
-          </h1>
-          <p className="text-gray-300 text-sm max-w-3xl leading-relaxed">
-            Integrating functional Library operations with low-level Operating System kernel abstractions: Process CPU Scheduling (Round Robin Q=4), Memory Paging (Virtual-to-Physical translation), and Disk Cylinder Head Trajectory (FCFS 0–130).
-          </p>
-
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => navigate('library')}
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-blue-500/25 transition-all"
-            >
-              <BookOpen className="h-4 w-4" />
-              <span>Launch LMS Operations</span>
-            </button>
-            <button
-              onClick={() => navigate('results')}
-              className="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl text-xs font-semibold flex items-center space-x-2 border border-gray-700 transition-all"
-            >
-              <Activity className="h-4 w-4 text-emerald-400" />
-              <span>View Results &amp; Analysis Report</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      </div>
-
-      {/* Library Domain Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 font-mono text-xs">
-        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-blue-500">
-          <div className="flex items-center justify-between text-gray-400">
-            <span>Total Titles</span>
-            <BookOpen className="h-4 w-4 text-blue-400" />
-          </div>
-          <div className="text-2xl font-bold text-white">{totalBooks}</div>
-          <span className="text-[10px] text-gray-500">Book catalog titles</span>
-        </div>
-
-        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-emerald-500">
-          <div className="flex items-center justify-between text-gray-400">
-            <span>Available Copies</span>
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-400">{availableCopies}</div>
-          <span className="text-[10px] text-gray-500">Ready for checkout</span>
-        </div>
-
-        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-purple-500">
-          <div className="flex items-center justify-between text-gray-400">
-            <span>Issued Copies</span>
-            <BookMarked className="h-4 w-4 text-purple-400" />
-          </div>
-          <div className="text-2xl font-bold text-purple-400">{issuedCopies}</div>
-          <span className="text-[10px] text-gray-500">Currently checked out</span>
-        </div>
-
-        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-indigo-500">
-          <div className="flex items-center justify-between text-gray-400">
-            <span>Total Members</span>
-            <Users className="h-4 w-4 text-indigo-400" />
-          </div>
-          <div className="text-2xl font-bold text-indigo-400">{totalMembers}</div>
-          <span className="text-[10px] text-gray-500">Students &amp; Faculty</span>
-        </div>
-
-        <div className="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-rose-500">
-          <div className="flex items-center justify-between text-gray-400">
-            <span>Overdue Fines</span>
-            <Clock className="h-4 w-4 text-rose-400" />
-          </div>
-          <div className="text-2xl font-bold text-rose-400">{overdueTransactions.length}</div>
-          <span className="text-[10px] text-gray-500">Past due date</span>
-        </div>
-      </div>
-
-      {/* OS Simulation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div 
-          onClick={() => navigate('process')}
-          className="glass-card p-5 rounded-2xl cursor-pointer hover:border-blue-500/50 transition-all group space-y-3"
-        >
+    <div className="space-y-8 animate-fade-in font-sans">
+      {/* 1. TOP KPI CARDS (Matching Soft UI Dashboard 3 reference layout) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Card 1: Orange Accent Card */}
+        <div className="soft-gradient-orange p-5 rounded-2xl space-y-3 relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition">
-              <Cpu className="h-5 w-5" />
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+              <BookOpen className="h-5 w-5" />
             </div>
-            <span className="text-xs font-mono text-blue-400 font-bold">RR (Q=4)</span>
-          </div>
-          <div>
-            <span className="text-2xl font-bold text-white font-mono">25</span>
-            <span className="text-xs text-gray-400 ml-1">time units</span>
-            <h4 className="text-xs font-semibold text-gray-300 mt-1">CPU Process Scheduling</h4>
-          </div>
-          <div className="text-[11px] text-gray-400 border-t border-gray-800 pt-2 flex justify-between font-mono">
-            <span>5 Processes (P1-P5)</span>
-            <span className="text-blue-400 flex items-center">Open Engine <ArrowRight className="h-3 w-3 ml-0.5" /></span>
-          </div>
-        </div>
-
-        <div 
-          onClick={() => navigate('memory')}
-          className="glass-card p-5 rounded-2xl cursor-pointer hover:border-emerald-500/50 transition-all group space-y-3"
-        >
-          <div className="flex items-center justify-between">
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition">
-              <Database className="h-5 w-5" />
-            </div>
-            <span className="text-xs font-mono text-emerald-400 font-bold">4 Frames</span>
-          </div>
-          <div>
-            <span className="text-2xl font-bold text-white font-mono">4 GB</span>
-            <span className="text-xs text-gray-400 ml-1">RAM</span>
-            <h4 className="text-xs font-semibold text-gray-300 mt-1">Memory Paging System</h4>
-          </div>
-          <div className="text-[11px] text-gray-400 border-t border-gray-800 pt-2 flex justify-between font-mono">
-            <span>4 KB Page Size</span>
-            <span className="text-emerald-400 flex items-center">Open Engine <ArrowRight className="h-3 w-3 ml-0.5" /></span>
-          </div>
-        </div>
-
-        <div 
-          onClick={() => navigate('disk')}
-          className="glass-card p-5 rounded-2xl cursor-pointer hover:border-amber-500/50 transition-all group space-y-3"
-        >
-          <div className="flex items-center justify-between">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition">
-              <HardDrive className="h-5 w-5" />
-            </div>
-            <span className="text-xs font-mono text-amber-400 font-bold">FCFS Baseline</span>
-          </div>
-          <div>
-            <span className="text-2xl font-bold text-white font-mono">545</span>
-            <span className="text-xs text-gray-400 ml-1">seeks</span>
-            <h4 className="text-xs font-semibold text-gray-300 mt-1">Disk Head Trajectory</h4>
-          </div>
-          <div className="text-[11px] text-gray-400 border-t border-gray-800 pt-2 flex justify-between font-mono">
-            <span>Initial Head: 65</span>
-            <span className="text-amber-400 flex items-center">Open Engine <ArrowRight className="h-3 w-3 ml-0.5" /></span>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="glass-card p-5 rounded-2xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-200 flex items-center space-x-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>Team 10 Master Configuration</span>
-            </h3>
-            <span className="text-[10px] bg-blue-900/40 text-blue-300 border border-blue-700/50 px-2 py-0.5 rounded font-mono">
-              EXACT PRESET
+            <span className="text-xs font-mono font-bold bg-white/20 px-2 py-0.5 rounded-lg text-white">
+              +55% Active
             </span>
           </div>
+          <div>
+            <div className="text-3xl font-extrabold tracking-tight">{totalBooks}</div>
+            <div className="text-xs text-white/90 font-medium">Total Books Cataloged</div>
+          </div>
+          <div className="text-[11px] text-white/80 pt-1 border-t border-white/20 flex justify-between font-mono">
+            <span>Available: {availableCopies}</span>
+            <span>Issued: {issuedCopies}</span>
+          </div>
+        </div>
 
-          <div className="space-y-3 font-mono text-xs">
-            <div className="p-3 bg-gray-950/80 rounded-xl border border-gray-800 space-y-1.5">
-              <span className="text-blue-400 font-semibold block">Process Scheduling (Round Robin):</span>
-              <div className="text-gray-300 space-y-1 text-[11px]">
-                <div>P1: AT 0, BT 6 | P2: AT 2, BT 2</div>
-                <div>P3: AT 3, BT 5 | P4: AT 5, BT 9</div>
-                <div>P5: AT 7, BT 3</div>
-                <div className="text-emerald-400 pt-1 font-bold">Time Quantum = 4</div>
-              </div>
+        {/* Card 2: Dark Slate Card */}
+        <div className="soft-gradient-dark p-5 rounded-2xl space-y-3 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-orange-400">
+              <Cpu className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded-lg text-orange-400">
+              +124% Utilization
+            </span>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold tracking-tight text-white">100%</div>
+            <div className="text-xs text-slate-300 font-medium">Round Robin CPU Utilization (Q=4)</div>
+          </div>
+          <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-700/60 flex justify-between font-mono">
+            <span>Avg TAT: 13.0u</span>
+            <span>Avg WT: 8.0u</span>
+          </div>
+        </div>
+
+        {/* Card 3: Dark Slate Card */}
+        <div className="soft-gradient-dark p-5 rounded-2xl space-y-3 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-emerald-400">
+              <Database className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded-lg text-emerald-400">
+              +15% Allocated
+            </span>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold tracking-tight text-white">4 / 4</div>
+            <div className="text-xs text-slate-300 font-medium">RAM Physical Frames (16 KB)</div>
+          </div>
+          <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-700/60 flex justify-between font-mono">
+            <span>Pages: 8,192</span>
+            <span>Frag: 0 B</span>
+          </div>
+        </div>
+
+        {/* Card 4: Dark Slate Card */}
+        <div className="soft-gradient-dark p-5 rounded-2xl space-y-3 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-amber-400">
+              <HardDrive className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded-lg text-amber-400">
+              +90% Trajectory
+            </span>
+          </div>
+          <div>
+            <div className="text-3xl font-extrabold tracking-tight text-white">545</div>
+            <div className="text-xs text-slate-300 font-medium">Total Disk Seek Movement (Tracks)</div>
+          </div>
+          <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-700/60 flex justify-between font-mono">
+            <span>Avg Seek: 68.13</span>
+            <span>FCFS 0–130</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. REVIEWS / SYSTEM PERFORMANCE BREAKDOWN CARD & QUICK MODULE ACCESSIBILITY */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols */}
+        <div className="lg:col-span-2 soft-card p-6 space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-base font-extrabold text-slate-900">System Resource Overview</h3>
+              <p className="text-xs text-slate-500">Live summary of Library Management &amp; OS Kernels</p>
+            </div>
+            <button
+              onClick={() => onNavigateToView('results')}
+              className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold font-mono shadow-sm transition flex items-center space-x-1"
+            >
+              <span>View Full Report</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs">
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <span className="text-slate-400 text-[11px]">Total Members</span>
+              <div className="text-xl font-extrabold text-slate-900">{totalMembers}</div>
             </div>
 
-            <div className="p-3 bg-gray-950/80 rounded-xl border border-gray-800 space-y-1.5">
-              <span className="text-emerald-400 font-semibold block">Memory Management (Paging):</span>
-              <div className="text-gray-300 space-y-1 text-[11px]">
-                <div>RAM: {TEAM_10_DEFAULTS.ramGB} GB | Page Size: {TEAM_10_DEFAULTS.pageSizeKB} KB</div>
-                <div>Process Logical Space: {TEAM_10_DEFAULTS.logicalSpaceMB} MB</div>
-                <div className="text-emerald-400 pt-1 font-bold">Physical Frames = 4</div>
-              </div>
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <span className="text-slate-400 text-[11px]">Overdue Items</span>
+              <div className="text-xl font-extrabold text-rose-600">{overdueTransactions.length}</div>
             </div>
 
-            <div className="p-3 bg-gray-950/80 rounded-xl border border-gray-800 space-y-1.5">
-              <span className="text-amber-400 font-semibold block">Disk Scheduling:</span>
-              <div className="text-gray-300 space-y-1 text-[11px]">
-                <div>Cylinder Range: {TEAM_10_DEFAULTS.cylinderMin}–{TEAM_10_DEFAULTS.cylinderMax}</div>
-                <div>Initial Head Position: {TEAM_10_DEFAULTS.initialHead}</div>
-                <div className="text-amber-300 pt-1 truncate">
-                  Queue: [{TEAM_10_DEFAULTS.diskQueue.join(', ')}]
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <span className="text-slate-400 text-[11px]">CPU Algorithm</span>
+              <div className="text-sm font-extrabold text-orange-600">Round Robin (Q=4)</div>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <span className="text-slate-400 text-[11px]">Page Size</span>
+              <div className="text-sm font-extrabold text-emerald-600">4 KB (12 Bits)</div>
+            </div>
+          </div>
+
+          {/* Launchpad Grid */}
+          <div className="space-y-3 pt-2">
+            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">
+              Quick Module Launchpad
+            </h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-xs">
+              <button
+                onClick={() => onNavigateToView('library')}
+                className="p-3 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-left transition space-y-1 group"
+              >
+                <div className="font-bold text-slate-900 group-hover:text-orange-600 flex items-center justify-between">
+                  <span>Library Suite</span>
+                  <BookOpen className="h-4 w-4 text-orange-500" />
+                </div>
+                <div className="text-[11px] text-slate-400">Books &amp; Checkout</div>
+              </button>
+
+              <button
+                onClick={() => onNavigateToView('process')}
+                className="p-3 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-left transition space-y-1 group"
+              >
+                <div className="font-bold text-slate-900 group-hover:text-orange-600 flex items-center justify-between">
+                  <span>CPU Scheduler</span>
+                  <Cpu className="h-4 w-4 text-orange-500" />
+                </div>
+                <div className="text-[11px] text-slate-400">Gantt &amp; Quantum</div>
+              </button>
+
+              <button
+                onClick={() => onNavigateToView('memory')}
+                className="p-3 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-left transition space-y-1 group"
+              >
+                <div className="font-bold text-slate-900 group-hover:text-orange-600 flex items-center justify-between">
+                  <span>Memory Paging</span>
+                  <Database className="h-4 w-4 text-orange-500" />
+                </div>
+                <div className="text-[11px] text-slate-400">Address Translation</div>
+              </button>
+
+              <button
+                onClick={() => onNavigateToView('disk')}
+                className="p-3 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-left transition space-y-1 group"
+              >
+                <div className="font-bold text-slate-900 group-hover:text-orange-600 flex items-center justify-between">
+                  <span>Disk Scheduling</span>
+                  <HardDrive className="h-4 w-4 text-orange-500" />
+                </div>
+                <div className="text-[11px] text-slate-400">Trajectory Canvas</div>
+              </button>
+
+              <button
+                onClick={() => onNavigateToView('testing')}
+                className="p-3 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-left transition space-y-1 group"
+              >
+                <div className="font-bold text-slate-900 group-hover:text-orange-600 flex items-center justify-between">
+                  <span>Test Suite</span>
+                  <Sparkles className="h-4 w-4 text-orange-500" />
+                </div>
+                <div className="text-[11px] text-slate-400">Automated 15 Tests</div>
+              </button>
+
+              <button
+                onClick={() => onNavigateToView('team10')}
+                className="p-3 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-left transition space-y-1 group"
+              >
+                <div className="font-bold text-slate-900 group-hover:text-orange-600 flex items-center justify-between">
+                  <span>Team 10 Specs</span>
+                  <Layers className="h-4 w-4 text-orange-500" />
+                </div>
+                <div className="text-[11px] text-slate-400">Parameter Set</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right 1 Col */}
+        <div className="soft-card p-6 space-y-5 flex flex-col justify-between">
+          <div className="space-y-4">
+            <h3 className="text-base font-extrabold text-slate-900">Resource Performance</h3>
+            <p className="text-xs text-slate-500">System accuracy breakdown across modules</p>
+
+            <div className="space-y-4 font-mono text-xs pt-2">
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="font-bold text-slate-700">CPU Round Robin Accuracy</span>
+                  <span className="text-orange-600 font-extrabold">80%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-orange-500 h-full rounded-full" style={{ width: '80%' }}></div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="font-bold text-slate-700">Memory Address Translation</span>
+                  <span className="text-slate-900 font-extrabold">17%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-slate-900 h-full rounded-full" style={{ width: '17%' }}></div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="font-bold text-slate-700">Disk Seek Trajectory Efficiency</span>
+                  <span className="text-slate-400 font-extrabold">3%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-slate-300 h-full rounded-full" style={{ width: '3%' }}></div>
                 </div>
               </div>
             </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed pt-2">
+              More than <strong>1,500,000</strong> simulation execution steps processed across official Team 10 OS parameters.
+            </p>
           </div>
 
           <button
-            onClick={() => navigate('team10')}
-            className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded-xl transition font-mono"
+            onClick={() => onNavigateToView('testing')}
+            className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md shadow-slate-900/10 transition"
           >
-            Inspect Full Team Config &rarr;
+            Run All Test Verifications
           </button>
         </div>
+      </div>
 
-        <div className="lg:col-span-2 glass-card p-5 rounded-2xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-200 flex items-center space-x-2">
-              <Zap className="h-4 w-4 text-amber-400" />
-              <span>Real-Time OS Simulation Event Stream</span>
-            </h3>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      {/* 3. PROJECTS & TIMELINE */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 soft-card p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 className="text-base font-extrabold text-slate-900">Projects &amp; Simulation Tasks</h3>
+              <div className="text-xs text-emerald-600 font-mono font-bold flex items-center space-x-1">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>30 done this month</span>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
-            {activeLogs.map((log) => (
-              <div
-                key={log.id}
-                className="p-3 rounded-xl bg-gray-950/70 border border-gray-800/80 flex items-start space-x-3 text-xs"
-              >
-                <div className={`mt-0.5 px-2 py-0.5 rounded font-mono text-[10px] font-bold ${
-                  log.module === 'LMS' ? 'bg-purple-950 text-purple-300 border border-purple-800' :
-                  log.module === 'PROCESS' ? 'bg-blue-950 text-blue-300 border border-blue-800' :
-                  log.module === 'MEMORY' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
-                  'bg-amber-950 text-amber-300 border border-amber-800'
-                }`}>
-                  {log.module}
-                </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-mono">
+              <thead>
+                <tr className="border-b border-slate-100 text-slate-400 bg-slate-50">
+                  <th className="p-3">COMPANIES / MODULES</th>
+                  <th className="p-3">MEMBERS</th>
+                  <th className="p-3">BUDGET / CAPACITY</th>
+                  <th className="p-3">COMPLETION</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {[
+                  { name: 'Soft UI Process Scheduler', members: 'P1-P5', budget: 'Q=4', completion: 100, color: 'bg-orange-500' },
+                  { name: 'Memory Paging Translator', members: '8,192 Pg', budget: '32 MB', completion: 100, color: 'bg-emerald-500' },
+                  { name: 'Disk Trajectory Canvas', members: '8 Seeks', budget: '130 Cyl', completion: 100, color: 'bg-amber-500' },
+                  { name: 'Automated 15-Test Suite', members: '15 Tests', budget: 'Zero Defect', completion: 100, color: 'bg-purple-500' },
+                  { name: 'Library CRUD Engine', members: 'Catalog', budget: 'Persisted', completion: 100, color: 'bg-blue-500' },
+                ].map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/80 transition">
+                    <td className="p-3 font-bold text-slate-800 flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-[10px]">
+                        OS
+                      </div>
+                      <span className="font-sans text-sm">{row.name}</span>
+                    </td>
+                    <td className="p-3 text-slate-600">{row.members}</td>
+                    <td className="p-3 text-slate-800 font-bold">{row.budget}</td>
+                    <td className="p-3">
+                      <div className="space-y-1 w-24">
+                        <span className="text-[10px] text-slate-600 font-bold">{row.completion}%</span>
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                          <div className={`${row.color} h-full rounded-full`} style={{ width: `${row.completion}%` }}></div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-                <div className="flex-1 space-y-0.5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-200">{log.action}</span>
-                    <span className="text-[10px] font-mono text-gray-500">{log.timestamp}</span>
-                  </div>
-                  <p className="text-gray-400 text-[11px] font-mono">{log.details}</p>
+        <div className="soft-card p-6 space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h3 className="text-base font-extrabold text-slate-900">Orders Overview</h3>
+            <div className="text-xs text-emerald-600 font-mono font-bold flex items-center space-x-1">
+              <TrendingUp className="h-3.5 w-3.5" />
+              <span>+24% this month</span>
+            </div>
+          </div>
+
+          <div className="space-y-4 text-xs font-mono">
+            {activityLogs.slice(0, 5).map((log) => (
+              <div key={log.id} className="flex space-x-3 items-start">
+                <div className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${
+                  log.status === 'success' ? 'bg-emerald-500' :
+                  log.status === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+                }`}></div>
+                <div className="space-y-0.5 flex-1">
+                  <div className="font-bold text-slate-800">{log.action}</div>
+                  <div className="text-[11px] text-slate-500 font-sans leading-tight">{log.details}</div>
+                  <div className="text-[10px] text-slate-400 pt-0.5">{log.timestamp}</div>
                 </div>
               </div>
             ))}

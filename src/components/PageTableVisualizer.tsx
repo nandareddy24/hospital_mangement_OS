@@ -1,141 +1,128 @@
 import React, { useState } from 'react';
+import { Database, Binary, CheckCircle2 } from 'lucide-react';
 import { translateLogicalAddress } from '../utils/memoryManager';
-import { DEFAULT_NUM_FRAMES } from '../utils/memoryManager';
-import { Cpu } from 'lucide-react';
 
 export const PageTableVisualizer: React.FC = () => {
-  const [frames, setFrames] = useState<(number | null)[]>([12, 48, 102, 256]);
-  const [inputAddress, setInputAddress] = useState<string>('0x0000C0A4');
+  const [testLogicalAddress, setTestLogicalAddress] = useState<number>(49316);
+  const [pageTable] = useState<number[]>([0, 1, 2, 3]);
 
-  let rawAddr = 49316;
-  if (inputAddress.startsWith('0x') || inputAddress.startsWith('0X')) {
-    rawAddr = parseInt(inputAddress, 16) || 0;
-  } else {
-    rawAddr = parseInt(inputAddress, 10) || 0;
-  }
-
-  const samplePageTable: (number | null)[] = new Array(8192).fill(null);
-  frames.forEach((pNum, fIdx) => {
-    if (pNum !== null) {
-      samplePageTable[pNum] = fIdx;
-    }
-  });
-
-  const translation = translateLogicalAddress(rawAddr, samplePageTable);
+  const translation = translateLogicalAddress(testLogicalAddress, pageTable);
 
   return (
-    <div className="space-y-6">
-      <div className="glass-card p-5 rounded-xl space-y-4 bg-gray-900/60 border border-gray-800">
-        <h3 className="text-sm font-semibold text-gray-200 flex items-center space-x-2">
-          <Cpu className="h-4 w-4 text-emerald-400" />
-          <span>Interactive 32-Bit Logical Address Translator</span>
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div className="space-y-1.5">
-            <label className="text-xs text-gray-400 font-mono">Logical Address (Hex or Decimal):</label>
-            <input
-              type="text"
-              value={inputAddress}
-              onChange={(e) => setInputAddress(e.target.value)}
-              className="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm font-mono text-emerald-400 focus:outline-none focus:border-emerald-500"
-              placeholder="e.g. 0x0000C0A4 or 49316"
-            />
-          </div>
-
-          <div className="p-3 bg-gray-950 rounded-lg border border-gray-800 space-y-1 font-mono text-xs">
-            <div className="text-gray-400 flex justify-between">
-              <span>Page Number (p):</span>
-              <span className="text-blue-400 font-bold">{translation.pageNumber}</span>
-            </div>
-            <div className="text-gray-400 flex justify-between">
-              <span>Offset (d):</span>
-              <span className="text-amber-400 font-bold">{translation.offset} B</span>
-            </div>
-          </div>
-
-          <div className="p-3 bg-gray-950 rounded-lg border border-gray-800 space-y-1 font-mono text-xs">
-            <div className="text-gray-400 flex justify-between">
-              <span>Frame Result:</span>
-              <span className={translation.isHit ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>
-                {translation.isHit ? `Frame ${translation.frameNumber}` : 'PAGE FAULT'}
-              </span>
-            </div>
-            <div className="text-gray-400 flex justify-between">
-              <span>Physical Addr:</span>
-              <span className="text-cyan-400 font-bold">
-                {translation.hexPhysical ?? 'N/A (Load needed)'}
-              </span>
-            </div>
-          </div>
+    <div className="soft-card p-6 space-y-6 font-mono text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-3">
+        <div>
+          <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2 font-sans">
+            <Database className="h-4 w-4 text-emerald-600" />
+            <span>7. Page Table &amp; 32-Bit Address Translator Unit</span>
+          </h3>
+          <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+            Converts 32-Bit Logical Address $(p \parallel d)$ to Physical RAM Address $(F \parallel d)$
+          </p>
         </div>
 
-        <div className="p-3 bg-gray-950/70 border border-gray-800/80 rounded-lg text-xs font-mono text-gray-300 space-y-1">
-          <div className="text-blue-400 font-semibold">Translation Math Breakdown (Page Size = 4 KB = 4,096 B):</div>
-          <div>Page Number = floor({rawAddr} / 4096) = <strong>{translation.pageNumber}</strong></div>
-          <div>Offset = {rawAddr} % 4096 = <strong>{translation.offset}</strong></div>
-          {translation.isHit && (
-            <div>Physical Address = (Frame {translation.frameNumber} &times; 4096) + {translation.offset} = <strong>{translation.physicalAddress} ({translation.hexPhysical})</strong></div>
-          )}
+        <div className="flex items-center space-x-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          <span>Page Size: 4 KB (12 Offset Bits)</span>
         </div>
       </div>
 
-      <div className="glass-card p-5 rounded-xl space-y-4">
-        <h3 className="text-sm font-semibold text-gray-200 flex items-center justify-between">
-          <span>Physical Memory RAM Allocation (Team 10: 4 Frames)</span>
-          <span className="text-xs font-mono text-emerald-400">RAM: 4 GB | Frame Size: 4 KB</span>
-        </h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left: Dynamic 32-Bit Address Translator Form */}
+        <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+          <div className="font-extrabold text-slate-900 flex items-center space-x-2">
+            <Binary className="h-4 w-4 text-orange-500" />
+            <span>32-Bit Address Hardware Translator Simulator</span>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: DEFAULT_NUM_FRAMES }).map((_, fIdx) => {
-            const loadedPage = frames[fIdx];
-            const isTargetFrame = translation.isHit && translation.frameNumber === fIdx;
-
-            return (
-              <div
-                key={fIdx}
-                className={`p-4 rounded-xl border transition-all ${
-                  isTargetFrame
-                    ? 'bg-emerald-950/40 border-emerald-500/60 shadow-lg shadow-emerald-500/10'
-                    : 'bg-gray-950/80 border-gray-800'
-                }`}
+          <div className="space-y-1.5">
+            <label className="text-slate-600 font-bold text-[11px]">
+              Input Logical Address (Decimal Bytes, 0 to 33,554,431):
+            </label>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                min="0"
+                max="33554431"
+                value={testLogicalAddress}
+                onChange={(e) => setTestLogicalAddress(Math.max(0, Number(e.target.value)))}
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold text-xs focus:outline-none focus:border-orange-500 shadow-xs"
+              />
+              <button
+                onClick={() => setTestLogicalAddress(Math.floor(Math.random() * 33554431))}
+                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-xs"
               >
-                <div className="flex items-center justify-between text-xs font-mono mb-2">
-                  <span className="text-gray-400 font-semibold">Frame {fIdx}</span>
-                  <span className="text-[10px] text-gray-500">Base: 0x{(fIdx * 4096).toString(16).toUpperCase().padStart(4, '0')}</span>
-                </div>
+                Random
+              </button>
+            </div>
+          </div>
 
-                <div className="space-y-2">
-                  {loadedPage !== null ? (
-                    <div className="p-3 bg-blue-900/20 border border-blue-700/40 rounded-lg text-center">
-                      <span className="text-xs text-blue-400 font-mono block">Loaded Page</span>
-                      <span className="text-lg font-bold font-mono text-white">Page #{loadedPage}</span>
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-gray-900 border border-dashed border-gray-800 rounded-lg text-center text-xs text-gray-500 font-mono">
-                      [ Empty Frame ]
-                    </div>
-                  )}
+          <div className="space-y-2 pt-2 border-t border-slate-200 text-[11px]">
+            <div className="flex justify-between p-2 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500">Target Page Number (p = Address / 4096):</span>
+              <strong className="text-orange-600 font-extrabold">Page #{translation.pageNumber}</strong>
+            </div>
 
-                  <div className="flex items-center space-x-2 pt-1">
-                    <span className="text-[11px] text-gray-400 font-mono">Assign Pg:</span>
-                    <input
-                      type="number"
-                      value={loadedPage ?? ''}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? null : Number(e.target.value);
-                        const newFrames = [...frames];
-                        newFrames[fIdx] = val;
-                        setFrames(newFrames);
-                      }}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs font-mono text-white"
-                      placeholder="e.g. 12"
-                    />
-                  </div>
-                </div>
+            <div className="flex justify-between p-2 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500">Page Offset (d = Address % 4096):</span>
+              <strong className="text-blue-600 font-extrabold">{translation.offset} Bytes</strong>
+            </div>
+
+            <div className="flex justify-between p-2 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500">Physical Frame Mapping (F):</span>
+              <strong className={translation.frameNumber === null ? 'text-rose-600 font-extrabold' : 'text-emerald-700 font-extrabold'}>
+                {translation.frameNumber === null ? 'PAGE FAULT (Not Resident)' : `Physical FRAME #${translation.frameNumber}`}
+              </strong>
+            </div>
+
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1">
+              <div className="text-emerald-800 font-bold">Physical Memory Address Result:</div>
+              <div className="text-slate-900 font-bold text-sm">
+                Decimal: {translation.physicalAddress} Bytes &bull; Hex: <span className="text-emerald-700">{translation.hexPhysical}</span>
               </div>
-            );
-          })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Page Table Register Matrix */}
+        <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+          <div className="font-extrabold text-slate-900 flex items-center justify-between">
+            <span>Kernel Page Table Register Matrix</span>
+            <span className="text-[10px] text-slate-500 font-normal">Page &rarr; Frame Mapping</span>
+          </div>
+
+          <div className="overflow-x-auto max-h-[220px]">
+            <table className="w-full text-center text-xs font-mono">
+              <thead className="sticky top-0 bg-white border-b border-slate-200 text-slate-400">
+                <tr>
+                  <th className="py-2 px-2 text-left">Virtual Page Number (p)</th>
+                  <th className="py-2 px-2">Valid Bit</th>
+                  <th className="py-2 px-2">Physical Frame Number (F)</th>
+                  <th className="py-2 px-2 text-right">Physical Base Address</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {[
+                  { page: 12, frame: 0, valid: 1, base: '0x00000000' },
+                  { page: 48, frame: 1, valid: 1, base: '0x00001000' },
+                  { page: 102, frame: 2, valid: 1, base: '0x00002000' },
+                  { page: 256, frame: 3, valid: 1, base: '0x00003000' },
+                  { page: translation.pageNumber, frame: translation.frameNumber, valid: translation.frameNumber === null ? 0 : 1, base: translation.hexPhysical },
+                ].map((row, idx) => (
+                  <tr key={idx} className={row.page === translation.pageNumber ? 'bg-orange-50/80 font-bold' : 'hover:bg-slate-50/80'}>
+                    <td className="py-2 px-2 text-left text-slate-900 font-bold">Page #{row.page}</td>
+                    <td className="py-2 px-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${row.valid === 1 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
+                        {row.valid} ({row.valid === 1 ? 'Valid' : 'Fault'})
+                      </span>
+                    </td>
+                    <td className="py-2 px-2 text-slate-800 font-bold">{row.frame !== null ? `Frame ${row.frame}` : 'None'}</td>
+                    <td className="py-2 px-2 text-right font-mono text-slate-600">{row.base}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

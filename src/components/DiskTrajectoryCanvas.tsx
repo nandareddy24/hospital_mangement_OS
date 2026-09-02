@@ -12,6 +12,8 @@ export const DiskTrajectoryCanvas: React.FC<DiskTrajectoryCanvasProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const initialHead = result.trajectory.length > 0 ? result.trajectory[0].fromCylinder : 65;
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -25,108 +27,101 @@ export const DiskTrajectoryCanvas: React.FC<DiskTrajectoryCanvasProps> = ({
     const paddingTop = 40;
     const paddingBottom = 40;
 
-    const chartWidth = width - paddingLeft - paddingRight;
-    const chartHeight = height - paddingTop - paddingBottom;
+    const graphWidth = width - paddingLeft - paddingRight;
+    const graphHeight = height - paddingTop - paddingBottom;
 
-    ctx.fillStyle = '#0B0F19';
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.strokeStyle = '#f1f5f9';
     ctx.lineWidth = 1;
 
     for (let c = 0; c <= cylinderMax; c += 10) {
-      const x = paddingLeft + (c / cylinderMax) * chartWidth;
+      const x = paddingLeft + (c / cylinderMax) * graphWidth;
       ctx.beginPath();
       ctx.moveTo(x, paddingTop);
       ctx.lineTo(x, height - paddingBottom);
       ctx.stroke();
 
-      ctx.fillStyle = '#6B7280';
+      ctx.fillStyle = '#94a3b8';
       ctx.font = '10px "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(c.toString(), x, height - paddingBottom + 16);
+      ctx.fillText(`${c}`, x, paddingTop - 10);
     }
 
-    const stepsCount = result.sequence.length;
-    const stepHeight = chartHeight / Math.max(1, stepsCount - 1);
+    const points = [
+      { step: 0, cylinder: initialHead, label: `Start (${initialHead})` },
+      ...result.trajectory.map((t) => ({
+        step: t.stepIndex,
+        cylinder: t.toCylinder,
+        label: `Step ${t.stepIndex}: #${t.toCylinder}`
+      }))
+    ];
 
-    for (let i = 0; i < stepsCount; i++) {
-      const y = paddingTop + i * stepHeight;
+    const numSteps = points.length;
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    points.forEach((pt, idx) => {
+      const x = paddingLeft + (pt.cylinder / cylinderMax) * graphWidth;
+      const y = paddingTop + (idx / (numSteps - 1)) * graphHeight;
+
+      if (idx === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+
+    points.forEach((pt, idx) => {
+      const x = paddingLeft + (pt.cylinder / cylinderMax) * graphWidth;
+      const y = paddingTop + (idx / (numSteps - 1)) * graphHeight;
+
       ctx.beginPath();
-      ctx.moveTo(paddingLeft, y);
-      ctx.lineTo(width - paddingRight, y);
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = idx === 0 ? '#3b82f6' : '#ea580c';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
       ctx.stroke();
 
-      ctx.fillStyle = '#9CA3AF';
-      ctx.font = '10px "JetBrains Mono", monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(`Step ${i}`, paddingLeft - 10, y + 4);
-    }
-
-    if (result.sequence.length > 1) {
-      ctx.strokeStyle = '#3B82F6';
-      ctx.lineWidth = 2.5;
-      ctx.shadowColor = 'rgba(59, 130, 246, 0.5)';
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-
-      result.sequence.forEach((cyl, idx) => {
-        const x = paddingLeft + (cyl / cylinderMax) * chartWidth;
-        const y = paddingTop + idx * stepHeight;
-        if (idx === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      });
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      result.sequence.forEach((cyl, idx) => {
-        const x = paddingLeft + (cyl / cylinderMax) * chartWidth;
-        const y = paddingTop + idx * stepHeight;
-
-        ctx.beginPath();
-        ctx.arc(x, y, idx === 0 ? 6 : 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = idx === 0 ? '#F59E0B' : '#06B6D4';
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        ctx.fillStyle = '#F9FAFB';
-        ctx.font = '11px "Outfit", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${cyl}`, x, y - 10);
-
-        if (idx > 0) {
-          const prevCyl = result.sequence[idx - 1];
-          const prevX = paddingLeft + (prevCyl / cylinderMax) * chartWidth;
-          const prevY = paddingTop + (idx - 1) * stepHeight;
-          const midX = (prevX + x) / 2;
-          const midY = (prevY + y) / 2;
-          const seek = Math.abs(cyl - prevCyl);
-
-          ctx.fillStyle = '#10B981';
-          ctx.font = '10px "JetBrains Mono", monospace';
-          ctx.fillText(`+${seek}`, midX + 12, midY);
-        }
-      });
-    }
-  }, [result, cylinderMax]);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 10px "JetBrains Mono", monospace';
+      ctx.textAlign = x > width / 2 ? 'right' : 'left';
+      const textX = x > width / 2 ? x - 12 : x + 12;
+      ctx.fillText(pt.label, textX, y + 3);
+    });
+  }, [result, cylinderMax, initialHead]);
 
   return (
-    <div className="w-full overflow-x-auto glass-card p-4 rounded-xl">
-      <div className="flex items-center justify-between mb-3 text-xs text-gray-400 font-mono">
-        <span>Disk Cylinder Trajectory (Range: 0 – {cylinderMax})</span>
-        <span className="text-blue-400 font-bold">Total Seek: {result.totalSeekDistance} tracks</span>
+    <div className="soft-card p-6 space-y-3 font-mono text-xs">
+      <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div>
+          <h4 className="font-extrabold text-slate-900 text-sm font-sans">
+            Disk Cylinder Trajectory Vector Canvas (0 to {cylinderMax})
+          </h4>
+          <p className="text-slate-500 text-[11px] font-mono mt-0.5">
+            Initial Head: Cylinder #{initialHead} &bull; Total Seek Movement: {result.totalSeekDistance} Tracks
+          </p>
+        </div>
+        <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-orange-700 rounded-xl font-bold text-xs">
+          {result.algorithm} Trajectory Graph
+        </span>
       </div>
-      <canvas
-        ref={canvasRef}
-        width={780}
-        height={380}
-        className="w-full h-[380px] rounded-lg border border-gray-800 bg-gray-950"
-      />
+
+      <div className="w-full overflow-x-auto bg-white rounded-2xl p-2 border border-slate-200 shadow-xs">
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={380}
+          className="w-full h-auto min-w-[700px] block"
+        />
+      </div>
     </div>
   );
 };
